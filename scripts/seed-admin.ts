@@ -25,11 +25,12 @@ import { SALT_ROUNDS, DEFAULT_JWT_EXPIRY } from '../src/utils/constants';
 import { IJwtPayload }  from '../src/core/entities/user.entity';
 
 const ADMIN_EMAIL    = 'nikhilmahato104@gmail.com';
-const ADMIN_PASSWORD = 'no expose password';
+const ADMIN_PASSWORD = 'secure pass @1234';
 const ADMIN_USERNAME = 'Nikhil Mahato';
 const ADMIN_MOBILE   = '+919304260733';
 
 const ALL_MODULES = [
+  'urm_management',
   'user_management',
   'role_management',
   'module_management',
