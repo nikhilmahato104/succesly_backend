@@ -11,6 +11,11 @@ import { errorMiddleware } from './middlewares';
 
 const app = express();
 
+// Trust the first proxy (nginx / Caddy) so req.secure reflects the real
+// HTTPS connection rather than the internal HTTP hop from the proxy.
+// This is required for SameSite=None + Secure cookies to work correctly.
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 // ── CORS ─────────────────────────────────────────────────────────────────────
@@ -18,8 +23,9 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost:5173',          // Vite dev server (local frontend)
   'http://localhost:3000',          // Alternative dev port
-  'https://succely.in',            // Production domain
+  'https://succesly.in',            // Production domain
   'https://identity.zynkly.com',   // Identity service
+  'https://api.succesly.in',      // Admin dashboard
 ];
 
 app.use(
@@ -55,7 +61,10 @@ app.use(
   '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, {
-    swaggerOptions:  { persistAuthorization: true },
+    swaggerOptions: {
+      persistAuthorization: true,
+      withCredentials: true,   // sends the rt cookie so /auth/refresh works in Swagger
+    },
     customSiteTitle: 'Zynkly Identity Service',
   })
 );

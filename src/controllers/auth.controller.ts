@@ -12,14 +12,28 @@ import {
 const dataServices = new MongoDataServices();
 const authUseCase  = new AuthUseCase(dataServices);
 
-/** Shared cookie options for the HTTP-only refresh token */
-const refreshCookieOptions = {
-  httpOnly: true,                                          // JS cannot read this cookie
-  secure:   process.env['NODE_ENV'] === 'production',      // HTTPS-only in production
-  sameSite: 'strict' as const,                            // Never sent on cross-site requests
-  maxAge:   REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
-  path:     '/api/v1/auth',                                // Scope cookie to auth endpoints only
-};
+/**
+ * Build refresh token cookie options per-request.
+ *
+ * WHY per-request (not module-level constant):
+ *   - NODE_ENV can be "development" even on the deployed HTTPS server.
+ *   - We detect HTTPS via req.secure (Express reads X-Forwarded-Proto after
+ *     `app.set('trust proxy', 1)` is set in app.ts).
+ *   - SameSite=None is required for cross-origin requests (e.g. localhost:5173
+ *     dev frontend → api.succesly.in prod API). SameSite=None MUST pair with
+ *     Secure=true — the browser rejects it otherwise.
+ *   - SameSite=Lax is safe enough for plain-HTTP local dev (no cross-site POST).
+ */
+function buildCookieOptions(req: Request) {
+  const isHttps = req.secure || req.headers['x-forwarded-proto'] === 'https';
+  return {
+    httpOnly: true,
+    secure:   isHttps,
+    sameSite: (isHttps ? 'none' : 'lax') as 'none' | 'lax',
+    maxAge:   REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000,
+    path:     '/api/v1/auth',
+  };
+}
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { error, value } = loginSchema.validate(req.body, { abortEarly: false });
@@ -31,10 +45,9 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const { accessToken, refreshToken, csrfToken, user } =
     await authUseCase.login(value, userAgent, ipAddress);
 
-  // Refresh token goes into an HTTP-only cookie — JavaScript (and cookie editor
-  // extensions) cannot read it.  Access token and CSRF token go into the body
-  // so the frontend stores them in memory only (never localStorage / cookies).
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
+  // Refresh token → HTTP-only cookie (unreadable by JS / extensions)
+  // Access token + CSRF token → response body only (frontend stores in memory)
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, buildCookieOptions(req));
 
   sendSuccess(res, 'Login successful', { accessToken, csrfToken, user });
 });
@@ -52,21 +65,20 @@ export const refresh = asyncHandler(async (req: Request, res: Response) => {
   const { accessToken, refreshToken: newRefreshToken, csrfToken } =
     await authUseCase.refresh(refreshToken, userAgent, ipAddress);
 
-  // Rotate the refresh token cookie
-  res.cookie(REFRESH_COOKIE_NAME, newRefreshToken, refreshCookieOptions);
+  // Rotate: set the new refresh token cookie, old session is already invalidated
+  res.cookie(REFRESH_COOKIE_NAME, newRefreshToken, buildCookieOptions(req));
 
   sendSuccess(res, 'Token refreshed', { accessToken, csrfToken });
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  // Try to invalidate the server-side session — use whichever identifier is available
   const sessionId    = req.user?.session_id;
   const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME] as string | undefined;
 
   await authUseCase.logout(sessionId, refreshToken);
 
-  // Clear the refresh token cookie
-  res.clearCookie(REFRESH_COOKIE_NAME, { ...refreshCookieOptions, maxAge: 0 });
+  const cookieOpts = buildCookieOptions(req);
+  res.clearCookie(REFRESH_COOKIE_NAME, { ...cookieOpts, maxAge: 0 });
 
   sendSuccess(res, 'Logged out successfully', null);
 });
