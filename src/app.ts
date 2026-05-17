@@ -26,6 +26,7 @@ const allowedOrigins = [
   'https://succesly.in',            // Production domain
   'https://identity.zynkly.com',   // Identity service
   'https://api.succesly.in',      // Admin dashboard
+  'https://administration.succesly.in/', // Admin dashboard alternate domain
 ];
 
 app.use(
