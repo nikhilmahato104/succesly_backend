@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authMiddleware, apiKeyMiddleware } from '../../middlewares';
+import { authMiddleware, csrfMiddleware, apiKeyMiddleware } from '../../middlewares';
 import {
   getAllStudents,
   getGradeSummary,
@@ -11,7 +11,7 @@ import {
 
 const router = Router();
 
-router.use(authMiddleware, apiKeyMiddleware);
+router.use(authMiddleware, csrfMiddleware, apiKeyMiddleware);
 
 router.get('/',               getAllStudents);
 router.get('/summary/grades', getGradeSummary);  // Must be before /:id

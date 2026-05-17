@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authMiddleware, apiKeyMiddleware, requirePermission } from '../../middlewares';
+import { authMiddleware, csrfMiddleware, apiKeyMiddleware, requirePermission } from '../../middlewares';
 import {
   getAllUsers,
   getUserById,
@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-router.use(authMiddleware, apiKeyMiddleware);
+router.use(authMiddleware, csrfMiddleware, apiKeyMiddleware);
 
 router.get('/',    requirePermission('user_management', 'view'),   getAllUsers);
 router.get('/:id', requirePermission('user_management', 'view'),   getUserById);

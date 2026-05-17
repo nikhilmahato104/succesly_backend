@@ -1,35 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt               from 'jsonwebtoken';
-import { User }          from '../frameworks/mongo/model/user.model';
-import { IJwtPayload }   from '../core/entities/user.entity';
+import jwt             from 'jsonwebtoken';
+import { User }        from '../frameworks/mongo/model/user.model';
+import { Session }     from '../frameworks/mongo/model/session.model';
+import { IJwtPayload } from '../core/entities/user.entity';
 
 /**
- * authMiddleware — Layer 1 of the security chain.
+ * authMiddleware — THREE-STEP verification chain.
  *
- * TWO-STEP verification:
+ *  Step 1 — JWT signature & expiry (stateless)
+ *    Extract Bearer token → verify signature with JWT_SECRET → check not expired.
  *
- *  Step 1 — JWT signature check (stateless, no DB)
- *    - Extract the Bearer token from the Authorization header.
- *    - Verify the signature with JWT_SECRET and check it has not expired.
- *    - If invalid → 401.
+ *  Step 2 — Server-side session check (DB lookup)
+ *    The JWT carries a session_id claim.  We verify that session still exists,
+ *    is marked valid, and has not passed its expiry date.  This lets us
+ *    invalidate all active tokens immediately on logout — even before the
+ *    15-minute access token window closes.
+ *    The session's csrf_token is attached to req.sessionCsrfToken for the
+ *    csrfMiddleware that runs after this one on state-changing routes.
  *
- *  Step 2 — Live user status check (DB lookup)
- *    - Even if the JWT is valid, the user account may have been
- *      deactivated by an admin AFTER the token was issued.
- *    - We query the DB for { _id: user_id, is_active } to catch that.
- *    - If the user does not exist or is inactive → 401.
- *    - This ensures deactivated users lose access immediately on the
- *      next request, without waiting for the token to expire.
- *
- *  On success → attaches decoded payload to req.user and calls next().
- *
- * Usage in routes:
- *   router.use(authMiddleware);             // protect all routes in router
- *   router.get('/path', authMiddleware, handler);  // protect single route
+ *  Step 3 — Live user status check (DB lookup)
+ *    Catch accounts deactivated by an admin after the token was issued.
  */
-export async function authMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function authMiddleware(
+  req:  Request,
+  res:  Response,
+  next: NextFunction,
+): Promise<void> {
 
-  // ── Step 1: Extract and verify JWT ─────────────────────────────────────
+  // ── Step 1: Extract and verify JWT ─────────────────────────────────────────
   const authHeader = req.headers['authorization'];
   const token      = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
@@ -46,26 +44,43 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     const secret = process.env['JWT_SECRET'] ?? 'change_me';
     decoded      = jwt.verify(token, secret) as IJwtPayload;
   } catch (err) {
-    // jwt.verify throws JsonWebTokenError (invalid) or TokenExpiredError (expired)
     const isExpired = (err as Error).name === 'TokenExpiredError';
     res.status(401).json({
       success: false,
       message: isExpired
-        ? 'Unauthorized: Token has expired. Please login again.'
+        ? 'Unauthorized: Token has expired. Use /auth/refresh to get a new access token.'
         : 'Unauthorized: Invalid token.',
     });
     return;
   }
 
-  // ── Step 2: Check the user is still active in the database ─────────────
-  // We select only the is_active field to keep this query lightweight.
+  // ── Step 2: Verify the server-side session ──────────────────────────────────
+  if (!decoded.session_id) {
+    res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Malformed token — missing session context.',
+    });
+    return;
+  }
+
+  const session = await Session.findById(decoded.session_id).select('is_valid expires_at csrf_token');
+
+  if (!session || !session.is_valid || session.expires_at < new Date()) {
+    res.status(401).json({
+      success: false,
+      message: 'Unauthorized: Session has expired or been revoked. Please login again.',
+    });
+    return;
+  }
+
+  // Attach CSRF token so csrfMiddleware can compare without a second DB hit
+  req.sessionCsrfToken = session.csrf_token;
+
+  // ── Step 3: Check the user is still active ──────────────────────────────────
   const user = await User.findById(decoded.user_id).select('is_active');
 
   if (!user) {
-    res.status(401).json({
-      success: false,
-      message: 'Unauthorized: User account not found.',
-    });
+    res.status(401).json({ success: false, message: 'Unauthorized: User account not found.' });
     return;
   }
 
@@ -77,7 +92,6 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     return;
   }
 
-  // ── Attach decoded payload so downstream middleware/controllers can use it
   req.user = decoded;
   next();
 }
