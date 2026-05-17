@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Secure Auth v2 — PRD, Developer Guide &amp; Frontend Integration</title>
+<title>Secure Auth v2.1 — PRD, Developer Guide &amp; Frontend Integration</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { font-size: 13px; }
@@ -25,7 +25,6 @@
   .page-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0f3460; padding-bottom: 8px; margin-bottom: 28px; font-size: 10px; color: #666; letter-spacing: .5px; }
   .page-footer  { margin-top: 40px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 10px; color: #888; text-align: center; letter-spacing: .3px; }
 
-  /* Cover */
   .cover { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 100vh; background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #0a0a23 100%); color: #fff; padding: 60px 48px; border-bottom: none; }
   .cover-badge { background: #e94560; color: #fff; padding: 4px 16px; border-radius: 20px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
   .cover h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
@@ -103,7 +102,6 @@
   .checklist li { list-style: none; padding-left: 0; }
   .checklist li::before { content: '☐ '; color: #e94560; font-weight: 700; }
 
-  /* ── Language Toggle ────────────────────────────────────────────── */
   .lang-bar {
     position: fixed; top: 16px; right: 20px; z-index: 9999;
     display: flex; gap: 8px; background: #fff;
@@ -135,47 +133,86 @@
 
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 14px 0; }
   @media (max-width: 700px) { .two-col, .merit-grid { grid-template-columns: 1fr; } }
+
+  /* Storage diagram */
+  .storage-diagram { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .storage-box { border-radius: 10px; padding: 14px 16px; text-align: center; border: 2px solid; }
+  .storage-box.good  { border-color: #27ae60; background: #f0fff4; }
+  .storage-box.bad   { border-color: #e94560; background: #fff0f2; }
+  .storage-box.auto  { border-color: #0f3460; background: #eef2f8; }
+  .storage-box .sb-title { font-weight: 700; font-size: 12px; margin-bottom: 6px; }
+  .storage-box.good .sb-title  { color: #27ae60; }
+  .storage-box.bad  .sb-title  { color: #e94560; }
+  .storage-box.auto .sb-title  { color: #0f3460; }
+  .storage-box .sb-body { font-size: 11px; line-height: 1.5; }
+
+  /* Timeline */
+  .timeline { border-left: 3px solid #0f3460; margin: 16px 0 16px 12px; padding-left: 20px; }
+  .timeline-item { position: relative; margin-bottom: 16px; }
+  .timeline-item::before { content: ''; position: absolute; left: -27px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: #0f3460; border: 2px solid #fff; box-shadow: 0 0 0 2px #0f3460; }
+  .timeline-item.red::before { background: #e94560; box-shadow: 0 0 0 2px #e94560; }
+  .timeline-item.green::before { background: #27ae60; box-shadow: 0 0 0 2px #27ae60; }
+  .timeline-item .tl-label { font-weight: 700; font-size: 12px; color: #0f3460; }
+  .timeline-item.red .tl-label { color: #e94560; }
+  .timeline-item.green .tl-label { color: #27ae60; }
+  .timeline-item .tl-body { font-size: 12px; color: #444; margin-top: 2px; }
+
+  /* New v2.1 badge */
+  .new-badge { display: inline-block; background: #27ae60; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 8px; letter-spacing: .5px; vertical-align: middle; margin-left: 6px; }
+
+  /* Do/Don't boxes */
+  .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+  .do-box   { border: 2px solid #27ae60; border-radius: 8px; padding: 12px 16px; background: #f0fff4; }
+  .dont-box { border: 2px solid #e94560; border-radius: 8px; padding: 12px 16px; background: #fff0f2; }
+  .do-box h4   { color: #27ae60; margin-top: 0; font-size: 13px; }
+  .dont-box h4 { color: #e94560; margin-top: 0; font-size: 13px; }
+  .do-box li::before   { content: '✓ '; color: #27ae60; font-weight: 700; }
+  .dont-box li::before { content: '✗ '; color: #e94560; font-weight: 700; }
+  .do-box li, .dont-box li { list-style: none; padding-left: 0; font-size: 12px; margin-bottom: 4px; }
+
+  /* Scalability meter */
+  .scale-bar { height: 10px; border-radius: 5px; background: #e0e0e0; margin: 4px 0 10px; overflow: hidden; }
+  .scale-fill { height: 100%; border-radius: 5px; }
+  .scale-fill.green  { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .scale-fill.orange { background: linear-gradient(90deg, #e67e22, #f39c12); }
+  .scale-fill.red    { background: linear-gradient(90deg, #e94560, #c0392b); }
+
+  @media (max-width: 700px) { .storage-diagram, .do-dont { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<!-- ── Language Toggle Bar ──────────────────────────────────────────────────── -->
 <div class="lang-bar no-print">
   <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🇬🇧 English</button>
   <button class="lang-btn"        id="btn-hi" onclick="setLang('hi')">🇮🇳 Hinglish</button>
 </div>
+<button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
 
-<button class="print-btn no-print" onclick="window.print()">🖨 Print / Save as PDF</button>
-
-<!-- ══════════════════════════════════════════════════════ PAGE 1 · COVER -->
+<!-- PAGE 1 · COVER -->
 <div class="page cover">
-  <div class="cover-badge">Confidential · Internal Documentation · v2.0</div>
-  <h1>
-    <span class="en">Secure Auth System v2.0</span>
-    <span class="hi">Secure Auth System v2.0</span>
-  </h1>
+  <div class="cover-badge">Confidential · Internal Documentation · v2.1</div>
+  <h1>Secure Auth System v2.1</h1>
   <h2>
-    <span class="en">JWT + Refresh Tokens + CSRF Protection + Server-Side Sessions<br/>PRD · Developer Guide · Frontend Integration</span>
-    <span class="hi">JWT + Refresh Tokens + CSRF Protection + Server-Side Sessions<br/>PRD · Developer Guide · Frontend ke liye Integration Guide</span>
+    <span class="en">JWT + Refresh Tokens + CSRF Protection + Server-Side Sessions<br/>PRD · Developer Guide · Frontend Integration (Fresher-Friendly)</span>
+    <span class="hi">JWT + Refresh Tokens + CSRF Protection + Server-Side Sessions<br/>PRD · Developer Guide · Frontend ke liye Poora Guide (Fresher bhi samajh sake)</span>
   </h2>
   <div class="cover-divider"></div>
   <div class="cover-meta">
-    <strong>Project:</strong> Backend API — Node.js + Express.js + TypeScript<br/>
+    <strong>Project:</strong> Identity Service — Node.js + Express.js + TypeScript<br/>
     <strong>Author:</strong> Nikhil Mahato (Software Development Engineer 1)<br/>
-    <strong>Version:</strong> 2.0 &nbsp;|&nbsp; <strong>Date:</strong> May 2026<br/>
+    <strong>Version:</strong> 2.1 &nbsp;|&nbsp; <strong>Date:</strong> May 2026<br/>
     <strong>Branch:</strong> nikhil-dev-secure-csrf-branch<br/>
-    <strong>Status:</strong> <span style="color:#27ae60;font-weight:700;">Active · Shipped</span>
+    <strong>Status:</strong> <span style="color:#27ae60;font-weight:700;">Active · Shipped · Production-Ready</span><br/>
+    <strong>API Base:</strong> https://api.succesly.in/api/v1
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 2 · TOC -->
+<!-- PAGE 2 · TOC -->
 <div class="page">
   <div class="page-header">
-    <span class="en">Secure Auth v2.0 — PRD &amp; Developer Guide</span>
-    <span class="hi">Secure Auth v2.0 — PRD &amp; Developer Guide</span>
+    <span>Secure Auth v2.1 — PRD &amp; Developer Guide</span>
     <span>Table of Contents</span>
   </div>
-
   <h1>
     <span class="en">Table of Contents</span>
     <span class="hi">Contents ki List</span>
@@ -193,949 +230,999 @@
   <div class="toc-item" style="margin-top:8px"><span class="toc-section">3. How the New System Works</span><span>5</span></div>
   <div class="toc-item l2"><span>3.1 Token Architecture — Three Tokens Explained</span><span>5</span></div>
   <div class="toc-item l2"><span>3.2 Server-Side Session Model</span><span>5</span></div>
-  <div class="toc-item l2"><span>3.3 Login Flow (Step by Step)</span><span>6</span></div>
+  <div class="toc-item l2"><span>3.3 Login Flow</span><span>6</span></div>
   <div class="toc-item l2"><span>3.4 Protected Request Flow</span><span>6</span></div>
-  <div class="toc-item l2"><span>3.5 Refresh Flow (Silent Re-Auth)</span><span>6</span></div>
+  <div class="toc-item l2"><span>3.5 Silent Refresh Flow</span><span>6</span></div>
   <div class="toc-item l2"><span>3.6 Logout Flow</span><span>6</span></div>
 
-  <div class="toc-item" style="margin-top:8px"><span class="toc-section">4. Files Changed — What &amp; Why</span><span>7</span></div>
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">4. v2.1 Changes — SameSite Fix, Trust Proxy, Swagger</span><span>7</span></div>
 
-  <div class="toc-item" style="margin-top:8px"><span class="toc-section">5. Merits &amp; Demerits</span><span>8</span></div>
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">5. Files Changed — What &amp; Why</span><span>8</span></div>
 
   <div class="toc-item" style="margin-top:8px"><span class="toc-section">6. API Endpoint Reference</span><span>9</span></div>
 
   <div class="toc-item" style="margin-top:8px"><span class="toc-section">7. Backend Developer Guide — Adding New Routes</span><span>10</span></div>
-  <div class="toc-item l2"><span>7.1 New Protected Route Checklist</span><span>10</span></div>
-  <div class="toc-item l2"><span>7.2 Common Mistakes to Avoid</span><span>10</span></div>
-  <div class="toc-item l2"><span>7.3 Middleware Chain Quick Reference</span><span>10</span></div>
 
-  <div class="toc-item" style="margin-top:8px"><span class="toc-section">8. Frontend Implementation Guide</span><span>11</span></div>
-  <div class="toc-item l2"><span>8.1 Token Storage Strategy</span><span>11</span></div>
-  <div class="toc-item l2"><span>8.2 Login Integration Code</span><span>11</span></div>
-  <div class="toc-item l2"><span>8.3 Axios Interceptor (Silent Refresh)</span><span>12</span></div>
-  <div class="toc-item l2"><span>8.4 Protected Route Guard</span><span>12</span></div>
-  <div class="toc-item l2"><span>8.5 Logout Flow</span><span>12</span></div>
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">8. Frontend Integration Guide (Fresher-Friendly)</span><span>11</span></div>
+  <div class="toc-item l2"><span>8.1 Where to Store What — Storage Diagram</span><span>11</span></div>
+  <div class="toc-item l2"><span>8.2 Login Flow — Step by Step with Code</span><span>12</span></div>
+  <div class="toc-item l2"><span>8.3 Auth Store with Zustand</span><span>12</span></div>
+  <div class="toc-item l2"><span>8.4 Axios Client + Silent Refresh Interceptor</span><span>13</span></div>
+  <div class="toc-item l2"><span>8.5 Protected Route Guard</span><span>13</span></div>
+  <div class="toc-item l2"><span>8.6 App Load / Page Refresh Handling</span><span>14</span></div>
+  <div class="toc-item l2"><span>8.7 Logout</span><span>14</span></div>
+  <div class="toc-item l2"><span>8.8 Do's and Don'ts for Freshers</span><span>14</span></div>
 
-  <div class="toc-item" style="margin-top:8px"><span class="toc-section">9. Copy-Paste Prompt for Frontend Dev</span><span>13</span></div>
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">9. Merits &amp; Demerits — Honest Assessment</span><span>15</span></div>
 
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">10. Enterprise-Level &amp; Scalability Assessment</span><span>16</span></div>
+
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">11. Future Roadmap</span><span>17</span></div>
+
+  <div class="toc-item" style="margin-top:8px"><span class="toc-section">12. Copy-Paste Prompt for Frontend Dev</span><span>18</span></div>
+
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 3 · VULNERABILITIES -->
+<!-- PAGE 3 · VULNERABILITIES -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 1 · Security Vulnerabilities</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 1 · Security Vulnerabilities</span></div>
   <h1>
     <span class="en">1. Why This Was Built — Security Vulnerabilities</span>
-    <span class="hi">1. Ye System Kyun Banaya — Security Problems Jo The</span>
+    <span class="hi">1. Ye System Kyun Banaya — Pehle Kya Problems Thi</span>
   </h1>
-
   <p class="en">Before v2.0, the authentication had two critical flaws that allowed unauthorized access to the dashboard and platform.</p>
   <p class="hi">v2.0 se pehle, authentication mein do badi problems thi jo bina permission ke dashboard access karwa deti thi.</p>
 
   <div class="vuln-card">
-    <h4>
-      <span class="en">Vulnerability 1 — Cookie Forgery Attack</span>
-      <span class="hi">Vulnerability 1 — Fake Cookie Se Dashboard Access</span>
-    </h4>
-    <p class="en"><strong>What happened:</strong> The frontend was checking whether a cookie (e.g. <code>t = any value</code>) existed to decide whether to show the dashboard layout, module names, and route structure. No real token validation was happening on the client side.</p>
-    <p class="hi"><strong>Kya hua:</strong> Frontend cookie ki existence check karta tha (jaise <code>t = kuch bhi</code>). Agar cookie thi, dashboard show ho jaata tha — chahe token valid ho ya na ho. Koi real validation nahi tha client side pe.</p>
-    <p class="en"><strong>Attack:</strong> Anyone who opened browser DevTools → Application → Cookies → added <code>t = hello</code> could see the full dashboard structure, all module names, and all route paths without ever logging in.</p>
-    <p class="hi"><strong>Attack kaise hota tha:</strong> Koi bhi DevTools → Application → Cookies mein jaake <code>t = hello</code> set kar deta, aur poora dashboard structure, module names, aur routes dikh jaate — bina login kiye.</p>
-    <p class="en"><strong>Impact:</strong> Information disclosure of the entire application structure to unauthenticated users.</p>
-    <p class="hi"><strong>Nuksan:</strong> Bina login kiye koi bhi poori application ki structure dekh sakta tha.</p>
+    <h4><span class="en">Vulnerability 1 — Cookie Forgery Attack</span><span class="hi">Vulnerability 1 — Fake Cookie Se Dashboard Access</span></h4>
+    <p class="en"><strong>What happened:</strong> The frontend checked whether a cookie (e.g. <code>t = any value</code>) existed to show the dashboard. No real token validation happened on the client.</p>
+    <p class="hi"><strong>Kya hua:</strong> Frontend cookie ki existence check karta tha (<code>t = kuch bhi</code>). Agar cookie thi, dashboard show ho jaata tha bina real validation ke.</p>
+    <p class="en"><strong>Attack:</strong> Anyone opening DevTools → Application → Cookies → set <code>t = hello</code> → could see all module names, routes, and dashboard structure without logging in.</p>
+    <p class="hi"><strong>Attack:</strong> Koi bhi DevTools mein jaake <code>t = hello</code> set kare, poora dashboard structure dikh jaata — bina login kiye.</p>
   </div>
 
   <div class="vuln-card">
-    <h4>
-      <span class="en">Vulnerability 2 — Cookie Theft via Extension</span>
-      <span class="hi">Vulnerability 2 — Cookie Editor Extension Se Session Chori</span>
-    </h4>
-    <p class="en"><strong>What happened:</strong> The JWT token was stored in a readable cookie (not HTTP-only). Browser extensions like "EditThisCookie" or "Cookie Editor" could read its full value.</p>
-    <p class="hi"><strong>Kya hua:</strong> JWT token ek normal (readable) cookie mein tha. "EditThisCookie" ya "Cookie Editor" jaise browser extension se koi bhi uski value padh sakta tha.</p>
-    <p class="en"><strong>Attack:</strong> User A logs in → copies their JWT cookie value → pastes it into another browser or gives it to someone → that person gets full access to User A's account with no password needed.</p>
-    <p class="hi"><strong>Attack kaise hota tha:</strong> User A login karta → extension se apni JWT cookie copy karta → doosre browser mein paste → doosra banda User A ka poora account access kar leta — bina password ke.</p>
-    <p class="en"><strong>Impact:</strong> Full account takeover. Tokens lived for 7 days, so the stolen session was valid for up to 7 days.</p>
-    <p class="hi"><strong>Nuksan:</strong> Poora account takeover ho sakta tha. Token 7 din tak valid tha, matlab chori hua session bhi 7 din chalega.</p>
+    <h4><span class="en">Vulnerability 2 — Cookie Theft via Browser Extension</span><span class="hi">Vulnerability 2 — Cookie Editor Extension Se Session Chori</span></h4>
+    <p class="en"><strong>What happened:</strong> The JWT was stored in a readable cookie. Browser extensions like "Cookie Editor" could copy the JWT value from one browser and paste it into another to hijack the active session.</p>
+    <p class="hi"><strong>Kya hua:</strong> JWT ek readable cookie mein tha. "Cookie Editor" extension se koi bhi JWT copy karke doosre browser mein paste karta aur session hijack ho jaata.</p>
+    <p class="en"><strong>Impact:</strong> A logged-in user's session could be stolen from any machine that accessed the site. Logout had no server-side effect — the stolen token would still work until it expired.</p>
+    <p class="hi"><strong>Nuksan:</strong> Kisi bhi machine ka session chura sakte the. Logout bhi kaam nahi karta tha — stolen token expiry tak kaam karta rehta tha.</p>
   </div>
 
   <div class="fix-card">
-    <h4>
-      <span class="en">How v2.0 Fixes Both</span>
-      <span class="hi">v2.0 Mein Dono Ko Kaise Fix Kiya</span>
-    </h4>
+    <h4><span class="en">How v2.0/v2.1 Fixes Both</span><span class="hi">v2.0/v2.1 Ne Kaise Fix Kiya</span></h4>
     <ul>
-      <li class="en"><strong>Access token in memory only</strong> — frontend stores it in JS state, never in a cookie. No cookie to fake or steal.</li>
-      <li class="en"><strong>Refresh token in HTTP-only cookie</strong> — JavaScript (and extensions) cannot read it. Not visible in DevTools either.</li>
-      <li class="en"><strong>Server-side session</strong> — even if a refresh token is somehow leaked, logout invalidates the session in the database immediately.</li>
-      <li class="en"><strong>CSRF token</strong> — an extra secret per-session token sent in a header, so cross-site requests cannot work even if the HTTP-only cookie is sent automatically.</li>
-      <li class="hi"><strong>Access token sirf memory mein</strong> — frontend JS state mein rakhta hai, cookie mein nahi. Fake karne ko kuch hai hi nahi.</li>
-      <li class="hi"><strong>Refresh token HTTP-only cookie mein</strong> — JavaScript ya extension is cookie ko padh hi nahi sakta.</li>
-      <li class="hi"><strong>Server-side session</strong> — logout hote hi DB mein session invalid ho jaata hai. Chora hua token bhi kaam nahi karega.</li>
-      <li class="hi"><strong>CSRF token</strong> — ek extra secret jo header mein bheja jaata hai, cross-site attack nahi ho sakti.</li>
+      <li class="en"><strong>HTTP-only cookie</strong> for refresh token — JavaScript and extensions cannot read it.</li>
+      <li class="hi"><strong>HTTP-only cookie</strong> refresh token ke liye — JavaScript aur extensions read nahi kar sakte.</li>
+      <li class="en"><strong>Access token in JS memory only</strong> — not in any cookie or localStorage, gone on page refresh.</li>
+      <li class="hi"><strong>Access token sirf JS memory mein</strong> — kisi cookie ya localStorage mein nahi, page refresh pe gone.</li>
+      <li class="en"><strong>Server-side sessions</strong> — every request validates the session in MongoDB. Logout immediately invalidates it.</li>
+      <li class="hi"><strong>Server-side sessions</strong> — har request MongoDB se session validate karti hai. Logout pe turant invalid.</li>
+      <li class="en"><strong>CSRF token</strong> — required on every state-changing request. Stored in memory, not cookie, so cross-site attacks can't use it.</li>
+      <li class="hi"><strong>CSRF token</strong> — har POST/PUT/PATCH/DELETE pe required. Memory mein hai, cookie mein nahi, toh cross-site attacks nahi chalte.</li>
     </ul>
   </div>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 4 · PRD -->
+<!-- PAGE 4 · PRD -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 2 · Product Requirements Document</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 2 · PRD</span></div>
   <h1>
     <span class="en">2. Product Requirements Document (PRD)</span>
-    <span class="hi">2. Product Requirements Document (PRD)</span>
+    <span class="hi">2. Product Requirements Document</span>
   </h1>
 
-  <h2>
-    <span class="en">2.1 Objectives &amp; Success Criteria</span>
-    <span class="hi">2.1 Objectives aur Success Criteria</span>
-  </h2>
+  <h2>2.1 Objectives &amp; Success Criteria</h2>
   <table>
-    <tr><th>Objective</th><th class="en">Success Criteria</th><th class="hi">Success Criteria</th></tr>
-    <tr>
-      <td><span class="en">Eliminate cookie forgery</span><span class="hi">Fake cookie attack khatam karna</span></td>
-      <td class="en">Setting any cookie manually must NOT grant access to any protected UI or data</td>
-      <td class="hi">Manually cookie set karne se koi bhi protected page ya data nahi milna chahiye</td>
-    </tr>
-    <tr>
-      <td><span class="en">Prevent session hijacking</span><span class="hi">Session chori rokna</span></td>
-      <td class="en">Tokens must not be readable by browser extensions; HTTP-only flag mandatory</td>
-      <td class="hi">Browser extension token padh na sake; HTTP-only flag mandatory hai</td>
-    </tr>
-    <tr>
-      <td><span class="en">Fast token revocation</span><span class="hi">Jaldi session band karna</span></td>
-      <td class="en">Logout must invalidate the session in DB immediately</td>
-      <td class="hi">Logout hote hi DB mein session invalid hona chahiye</td>
-    </tr>
-    <tr>
-      <td><span class="en">CSRF protection</span><span class="hi">CSRF se bachao</span></td>
-      <td class="en">All state-changing API calls must fail without a valid CSRF token header</td>
-      <td class="hi">Sab POST/PATCH/DELETE requests valid CSRF header ke bina fail honi chahiye</td>
-    </tr>
-    <tr>
-      <td><span class="en">Seamless UX</span><span class="hi">User experience smooth rakhna</span></td>
-      <td class="en">Access token expiry must be handled silently — user must NOT be logged out mid-session</td>
-      <td class="hi">Token expire hone par user ko silently naya token milna chahiye — mid-session logout nahi</td>
-    </tr>
+    <tr><th>Objective</th><th>Success Criteria</th><th>Status</th></tr>
+    <tr><td>Prevent cookie forgery</td><td>Dashboard shows no data without real API auth; server validates every token</td><td><span class="badge green">Done</span></td></tr>
+    <tr><td>Prevent cookie theft / session hijack</td><td>Refresh token unreadable by JS; instant logout revokes access</td><td><span class="badge green">Done</span></td></tr>
+    <tr><td>CSRF protection on all mutations</td><td>All POST/PUT/PATCH/DELETE require x-csrf-token header</td><td><span class="badge green">Done</span></td></tr>
+    <tr><td>Cross-origin cookie delivery</td><td>localhost:5173 dev frontend can login to api.succesly.in without 401</td><td><span class="badge green">Done v2.1</span></td></tr>
+    <tr><td>Instant logout across all sessions</td><td>Logout sets is_valid=false in DB; old access token rejected within milliseconds</td><td><span class="badge green">Done</span></td></tr>
+    <tr><td>Silent token refresh</td><td>User never sees a logout screen during normal usage; refresh is automatic</td><td><span class="badge blue">Frontend task</span></td></tr>
   </table>
 
-  <h2>
-    <span class="en">2.2 Functional Requirements</span>
-    <span class="hi">2.2 Functional Requirements</span>
-  </h2>
-  <table>
-    <tr><th>ID</th><th>Requirement</th><th>Priority</th></tr>
-    <tr><td>FR-01</td><td><span class="en">Login returns a 15-min access token + CSRF token in body, and sets HTTP-only refresh token cookie</span><span class="hi">Login se 15-min access token + CSRF token body mein milta hai, aur HTTP-only refresh cookie set hoti hai</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-02</td><td><span class="en">POST /auth/refresh reads the HTTP-only cookie and issues a new access token + rotated refresh token</span><span class="hi">POST /auth/refresh HTTP-only cookie padh ke naya access token + rotated refresh token deta hai</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-03</td><td><span class="en">POST /auth/logout invalidates the server-side session and clears the refresh cookie</span><span class="hi">POST /auth/logout server-side session invalid karta hai aur refresh cookie clear karta hai</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-04</td><td><span class="en">All state-changing routes must validate the x-csrf-token header against the session's CSRF token</span><span class="hi">Sab state-changing routes mein x-csrf-token header validate hona chahiye</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-05</td><td><span class="en">Auth middleware must check: JWT signature → session validity in DB → user active status</span><span class="hi">Auth middleware teen cheezein check kare: JWT → DB session → user active hai ya nahi</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-06</td><td><span class="en">Refresh token must be stored as a SHA-256 hash in DB (never the raw token)</span><span class="hi">Refresh token DB mein SHA-256 hash ke form mein store ho (raw token nahi)</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-07</td><td><span class="en">Refresh token rotation: each use of a refresh token must generate a new one and invalidate the old</span><span class="hi">Refresh token rotation: har use par naya token bane, purana invalidate ho</span></td><td><span class="badge red">High</span></td></tr>
-    <tr><td>FR-08</td><td><span class="en">MongoDB TTL index must auto-delete expired sessions</span><span class="hi">MongoDB TTL index expire sessions ko apne aap delete kare</span></td><td><span class="badge blue">Medium</span></td></tr>
-  </table>
+  <h2>2.2 Functional Requirements</h2>
+  <ul>
+    <li class="en">POST /auth/login — issue 3 tokens (access, refresh, CSRF), create server-side session, set HTTP-only cookie</li>
+    <li class="hi">POST /auth/login — 3 tokens banao, session banao DB mein, HTTP-only cookie set karo</li>
+    <li class="en">POST /auth/refresh — rotate refresh token (old invalidated), issue new access + CSRF token</li>
+    <li class="hi">POST /auth/refresh — purana refresh token invalid karo, naya access + CSRF token do</li>
+    <li class="en">POST /auth/logout — invalidate session in DB, clear rt cookie</li>
+    <li class="hi">POST /auth/logout — DB mein session invalid karo, rt cookie clear karo</li>
+    <li class="en">Auth middleware — 3-step: verify JWT → validate session in DB → check user active</li>
+    <li class="hi">Auth middleware — 3 steps: JWT verify → DB session check → user active check</li>
+    <li class="en">CSRF middleware — validate x-csrf-token header on all state-changing requests</li>
+    <li class="hi">CSRF middleware — har POST/PUT/PATCH/DELETE pe x-csrf-token validate karo</li>
+  </ul>
 
-  <h2>
-    <span class="en">2.3 Non-Functional Requirements</span>
-    <span class="hi">2.3 Non-Functional Requirements</span>
-  </h2>
+  <h2>2.3 Non-Functional Requirements</h2>
   <table>
-    <tr><th>Category</th><th>Requirement</th></tr>
-    <tr><td><strong>Performance</strong></td><td><span class="en">Auth middleware makes at most 2 DB queries per request (session + user)</span><span class="hi">Auth middleware ek request mein max 2 DB queries kare (session + user)</span></td></tr>
-    <tr><td><strong>Security</strong></td><td><span class="en">CSRF comparison uses <code>crypto.timingSafeEqual</code> to resist timing attacks</span><span class="hi">CSRF comparison <code>crypto.timingSafeEqual</code> se hota hai — timing attack se bachne ke liye</span></td></tr>
-    <tr><td><strong>TypeScript</strong></td><td><span class="en"><code>npx tsc --noEmit</code> must pass with zero errors</span><span class="hi"><code>npx tsc --noEmit</code> zero errors ke saath pass hona chahiye</span></td></tr>
-    <tr><td><strong>Cookie Security</strong></td><td><span class="en">Refresh cookie: <code>httpOnly</code>, <code>sameSite: strict</code>, <code>secure</code> in production, scoped to <code>/api/v1/auth</code></span><span class="hi">Refresh cookie: <code>httpOnly</code>, <code>sameSite: strict</code>, production mein <code>secure</code>, path <code>/api/v1/auth</code></span></td></tr>
-    <tr><td><strong>CORS</strong></td><td><span class="en">Allowed origins whitelist only — no wildcard <code>*</code> with credentials</span><span class="hi">Sirf allowed origins whitelist — credentials ke saath <code>*</code> kabhi nahi</span></td></tr>
+    <tr><th>Requirement</th><th>Specification</th></tr>
+    <tr><td>Access token lifetime</td><td>15 minutes (hardcoded constant)</td></tr>
+    <tr><td>Refresh token lifetime</td><td>7 days (configurable via REFRESH_TOKEN_EXPIRY_DAYS)</td></tr>
+    <tr><td>Refresh token storage</td><td>SHA-256 hash in MongoDB — raw token never persisted</td></tr>
+    <tr><td>CSRF token comparison</td><td>crypto.timingSafeEqual to prevent timing attacks</td></tr>
+    <tr><td>Session cleanup</td><td>MongoDB TTL index auto-deletes sessions after expires_at</td></tr>
+    <tr><td>Cookie security</td><td>HttpOnly, SameSite=None+Secure on HTTPS, path-scoped to /api/v1/auth</td></tr>
+    <tr><td>CORS</td><td>Whitelist only — localhost:5173, localhost:3000, succesly.in, identity.zynkly.com, api.succesly.in</td></tr>
   </table>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 5 · HOW IT WORKS -->
+<!-- PAGE 5 · HOW THE SYSTEM WORKS -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 3 · How the System Works</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 3 · System Architecture</span></div>
   <h1>
     <span class="en">3. How the New System Works</span>
     <span class="hi">3. Naya System Kaise Kaam Karta Hai</span>
   </h1>
 
-  <h2>
-    <span class="en">3.1 Token Architecture — Three Tokens Explained</span>
-    <span class="hi">3.1 Teen Tokens — Kya Hai Inki Role</span>
-  </h2>
-
+  <h2>3.1 Token Architecture — Three Tokens</h2>
   <table>
-    <tr><th>Token</th><th><span class="en">What it is</span><span class="hi">Kya hai</span></th><th><span class="en">Where stored</span><span class="hi">Kahan store</span></th><th><span class="en">Lifetime</span><span class="hi">Kitni der</span></th><th><span class="en">Purpose</span><span class="hi">Kaam</span></th></tr>
-    <tr>
-      <td><strong>Access Token</strong></td>
-      <td><span class="en">JWT signed with JWT_SECRET</span><span class="hi">JWT_SECRET se sign hua JWT</span></td>
-      <td><span class="en">JS memory (frontend variable)</span><span class="hi">JS memory (frontend variable)</span></td>
-      <td><code>15 min</code></td>
-      <td><span class="en">Sent in every API request as <code>Authorization: Bearer &lt;token&gt;</code></span><span class="hi">Har API request mein <code>Authorization: Bearer</code> header ke form mein</span></td>
-    </tr>
-    <tr>
-      <td><strong>Refresh Token</strong></td>
-      <td><span class="en">64 random bytes (128 hex chars)</span><span class="hi">64 random bytes (128 hex chars)</span></td>
-      <td><span class="en">HTTP-only cookie <code>rt</code> (unreadable by JS)</span><span class="hi">HTTP-only cookie <code>rt</code> (JS padh nahi sakta)</span></td>
-      <td><code>7 days</code></td>
-      <td><span class="en">Used only to get a new access token when it expires</span><span class="hi">Sirf tab use hota hai jab access token expire ho</span></td>
-    </tr>
-    <tr>
-      <td><strong>CSRF Token</strong></td>
-      <td><span class="en">32 random bytes (64 hex chars)</span><span class="hi">32 random bytes (64 hex chars)</span></td>
-      <td><span class="en">JS memory (frontend), DB session (backend)</span><span class="hi">JS memory (frontend), DB session (backend)</span></td>
-      <td><span class="en">Same as refresh token session</span><span class="hi">Refresh token session jitni der</span></td>
-      <td><span class="en">Sent in <code>x-csrf-token</code> header on every POST/PUT/PATCH/DELETE</span><span class="hi">Har POST/PUT/PATCH/DELETE mein <code>x-csrf-token</code> header ke form mein</span></td>
-    </tr>
+    <tr><th>Token</th><th>Type</th><th>Lifetime</th><th>Where Stored</th><th>Who Can Read</th></tr>
+    <tr><td><strong>Access Token</strong></td><td>JWT (HS256)</td><td>15 min</td><td>JS memory (variable)</td><td>Frontend JS only</td></tr>
+    <tr><td><strong>Refresh Token</strong></td><td>64 random bytes</td><td>7 days</td><td>HTTP-only cookie <code>rt</code></td><td>Browser (auto) — JS cannot read</td></tr>
+    <tr><td><strong>CSRF Token</strong></td><td>32 random bytes</td><td>Same as session</td><td>JS memory (variable)</td><td>Frontend JS only</td></tr>
   </table>
 
-  <h2>
-    <span class="en">3.2 Server-Side Session Model (<code>sessions</code> collection)</span>
-    <span class="hi">3.2 Server-Side Session Model (<code>sessions</code> collection)</span>
-  </h2>
+  <h2>3.2 Server-Side Session Model (MongoDB)</h2>
+  <pre><span class="comment">// sessions collection — one document per login</span>
+{
+  <span class="prop">user_id</span>:             ObjectId,
+  <span class="prop">refresh_token_hash</span>:  <span class="string">"sha256(rawToken)"</span>,  <span class="comment">// raw token never stored</span>
+  <span class="prop">csrf_token</span>:          <span class="string">"64 hex chars"</span>,
+  <span class="prop">expires_at</span>:          Date,               <span class="comment">// TTL index auto-deletes</span>
+  <span class="prop">is_valid</span>:            <span class="keyword">true</span>,               <span class="comment">// set false on logout</span>
+  <span class="prop">user_agent</span>:          <span class="string">"Mozilla/5.0..."</span>,
+  <span class="prop">ip_address</span>:          <span class="string">"1.2.3.4"</span>
+}</pre>
 
-  <table>
-    <tr><th>Field</th><th>Type</th><th><span class="en">Description</span><span class="hi">Description</span></th></tr>
-    <tr><td><code>user_id</code></td><td>ObjectId</td><td><span class="en">Which user this session belongs to</span><span class="hi">Kaun sa user hai</span></td></tr>
-    <tr><td><code>refresh_token_hash</code></td><td>String</td><td><span class="en">SHA-256 hash of the refresh token (never raw)</span><span class="hi">Refresh token ka SHA-256 hash (raw nahi)</span></td></tr>
-    <tr><td><code>csrf_token</code></td><td>String</td><td><span class="en">Random CSRF token for this session</span><span class="hi">Is session ka random CSRF token</span></td></tr>
-    <tr><td><code>expires_at</code></td><td>Date</td><td><span class="en">TTL index — MongoDB auto-deletes after this date</span><span class="hi">TTL index — MongoDB apne aap delete karta hai</span></td></tr>
-    <tr><td><code>is_valid</code></td><td>Boolean</td><td><span class="en">Set to <code>false</code> on logout or token rotation</span><span class="hi">Logout ya rotation par <code>false</code> ho jaata hai</span></td></tr>
-    <tr><td><code>user_agent</code></td><td>String?</td><td><span class="en">Browser/device info for audit</span><span class="hi">Audit ke liye browser/device info</span></td></tr>
-    <tr><td><code>ip_address</code></td><td>String?</td><td><span class="en">Request IP for audit</span><span class="hi">Audit ke liye request IP</span></td></tr>
-  </table>
-
-  <h2>
-    <span class="en">3.3 Login Flow</span>
-    <span class="hi">3.3 Login Flow</span>
-  </h2>
+  <h2>3.3 Login Flow</h2>
   <div class="flow">
-    <div class="flow-box">POST /auth/login</div><div class="flow-arrow">→</div>
-    <div class="flow-box gray">Validate creds</div><div class="flow-arrow">→</div>
-    <div class="flow-box gray">Create Session in DB</div><div class="flow-arrow">→</div>
-    <div class="flow-box green">accessToken + csrfToken (body)</div><div class="flow-arrow">+</div>
-    <div class="flow-box orange">rt cookie (HTTP-only)</div>
+    <div class="flow-box">User sends email+password</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Validate Joi schema</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Check DB: user exists, is_active</div><div class="flow-arrow">→</div>
+    <div class="flow-box">bcrypt compare password</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Generate 3 tokens</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Create session in DB</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Set rt cookie (HTTP-only)</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Return accessToken + csrfToken</div>
   </div>
 
-  <h2>
-    <span class="en">3.4 Protected Request Flow (3-Step Middleware Chain)</span>
-    <span class="hi">3.4 Protected Request Flow (3-Step Middleware Chain)</span>
-  </h2>
-  <div class="layer-stack">
-    <div class="layer-card"><div class="layer-label">Step 1 · JWT</div><div class="layer-desc"><span class="en">Extract Bearer token → verify signature → check not expired</span><span class="hi">Bearer token nikalo → signature verify karo → expire nahi hua check karo</span></div></div>
-    <div class="layer-card"><div class="layer-label">Step 2 · Session</div><div class="layer-desc"><span class="en">Find session by <code>session_id</code> from JWT → check <code>is_valid: true</code> and <code>expires_at &gt; now</code> → attach <code>csrf_token</code> to <code>req.sessionCsrfToken</code></span><span class="hi">JWT ke <code>session_id</code> se DB mein session dhundho → <code>is_valid</code> aur expiry check karo → CSRF token request mein attach karo</span></div></div>
-    <div class="layer-card"><div class="layer-label">Step 3 · User</div><div class="layer-desc"><span class="en">Confirm user still exists and <code>is_active: true</code> (catches mid-session deactivations)</span><span class="hi">Confirm karo user exist karta hai aur <code>is_active</code> hai (session ke beech deactivation pakdega)</span></div></div>
-    <div class="layer-card" style="border-color:#e94560"><div class="layer-label" style="background:#e94560">CSRF Check</div><div class="layer-desc"><span class="en">On POST/PUT/PATCH/DELETE only: compare <code>x-csrf-token</code> header against <code>req.sessionCsrfToken</code> using constant-time comparison</span><span class="hi">Sirf POST/PUT/PATCH/DELETE par: <code>x-csrf-token</code> header ko session ke CSRF token se compare karo</span></div></div>
+  <h2>3.4 Protected Request Flow (3-Step Middleware)</h2>
+  <div class="flow">
+    <div class="flow-box">Request arrives</div><div class="flow-arrow">→</div>
+    <div class="flow-box orange">Step 1: Verify JWT signature &amp; expiry</div><div class="flow-arrow">→</div>
+    <div class="flow-box orange">Step 2: Find session by session_id → is_valid? not expired?</div><div class="flow-arrow">→</div>
+    <div class="flow-box orange">Step 3: Is user active in DB?</div><div class="flow-arrow">→</div>
+    <div class="flow-box orange">CSRF: x-csrf-token header matches session?</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Controller runs</div>
+  </div>
+  <p class="en"><em>Any step failing returns 401 or 403. The 3 DB checks per request is the main scalability bottleneck — see Section 10.</em></p>
+  <p class="hi"><em>Koi bhi step fail ho toh 401 ya 403 milta hai. Har request pe 3 DB calls — ye scalability bottleneck hai, Section 10 dekho.</em></p>
+
+  <h2>3.5 Refresh Flow (Silent Re-Auth)</h2>
+  <div class="flow">
+    <div class="flow-box red">Access token expired (401)</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Browser auto-sends rt cookie to /auth/refresh</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Hash received token → find session in DB</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Invalidate old session → create new session</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Return new accessToken + csrfToken</div><div class="flow-arrow">→</div>
+    <div class="flow-box green">Set new rt cookie</div>
   </div>
 
-  <h2>
-    <span class="en">3.5 Refresh Flow (Silent Re-Auth)</span>
-    <span class="hi">3.5 Refresh Flow (Silent Re-Auth)</span>
-  </h2>
+  <h2>3.6 Logout Flow</h2>
   <div class="flow">
-    <div class="flow-box red">API returns 401 "Token expired"</div><div class="flow-arrow">→</div>
-    <div class="flow-box gray">POST /auth/refresh (rt cookie auto-sent)</div><div class="flow-arrow">→</div>
-    <div class="flow-box gray">Validate hash → invalidate old session</div><div class="flow-arrow">→</div>
-    <div class="flow-box green">New accessToken + csrfToken (body)</div><div class="flow-arrow">+</div>
-    <div class="flow-box orange">New rt cookie</div>
-  </div>
-
-  <h2>
-    <span class="en">3.6 Logout Flow</span>
-    <span class="hi">3.6 Logout Flow</span>
-  </h2>
-  <div class="flow">
-    <div class="flow-box">POST /auth/logout</div><div class="flow-arrow">→</div>
-    <div class="flow-box gray">authMiddleware + csrfMiddleware</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Auth + CSRF middleware pass</div><div class="flow-arrow">→</div>
     <div class="flow-box red">Set session is_valid = false in DB</div><div class="flow-arrow">→</div>
-    <div class="flow-box red">Clear rt cookie</div><div class="flow-arrow">→</div>
+    <div class="flow-box red">Clear rt cookie (maxAge=0)</div><div class="flow-arrow">→</div>
     <div class="flow-box green">200 OK</div>
   </div>
-
-  <div class="callout warn">
-    <div class="callout-title">
-      <span class="en">Important — Refresh Token Rotation</span>
-      <span class="hi">Important — Refresh Token Rotation</span>
-    </div>
-    <p class="en">Every call to <code>/auth/refresh</code> generates a completely new refresh token and CSRF token, and immediately invalidates the old session. This means if an attacker intercepts an old refresh token, it will already be invalid by the time they try to use it.</p>
-    <p class="hi">Har <code>/auth/refresh</code> call par naya refresh token aur CSRF token banta hai, aur purana session turant invalid ho jaata hai. Iska matlab: agar koi purana token le bhi le, tab tak wo invalid ho chuka hoga.</p>
-  </div>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <p class="en"><strong>Result:</strong> Even if someone has a copy of the old access token, Step 2 of auth middleware rejects it instantly because the session is now is_valid=false.</p>
+  <p class="hi"><strong>Result:</strong> Kisi ke paas purana access token bhi ho toh kaam nahi karega, kyunki DB mein session invalid ho chuka hai.</p>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 6 · FILES CHANGED -->
+<!-- PAGE 6 · v2.1 CHANGES -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 4 · Files Changed</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 4 · v2.1 Changes</span></div>
   <h1>
-    <span class="en">4. Files Changed — What &amp; Why</span>
-    <span class="hi">4. Kaun Se Files Badli — Kya Badla aur Kyun</span>
+    <span class="en">4. v2.1 Changes — What We Fixed and Why <span class="new-badge">NEW</span></span>
+    <span class="hi">4. v2.1 mein Kya Fix Kiya aur Kyun <span class="new-badge">NAYA</span></span>
   </h1>
 
-  <h3><span class="en">New Files Created</span><span class="hi">Naye Files Banaye</span></h3>
-  <table>
-    <tr><th>File</th><th><span class="en">What it does</span><span class="hi">Kya karta hai</span></th></tr>
-    <tr>
-      <td><code>src/frameworks/mongo/model/session.model.ts</code></td>
-      <td><span class="en">MongoDB model for server-side sessions. Stores refresh token hash, CSRF token, expiry, user agent, IP. Has TTL index to auto-delete expired sessions and an index on <code>refresh_token_hash</code> for fast lookups.</span><span class="hi">Server-side sessions ke liye MongoDB model. Refresh token hash, CSRF token, expiry store karta hai. TTL index se expired sessions apne aap delete hote hain.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/middlewares/csrf.middleware.ts</code></td>
-      <td><span class="en">Validates the <code>x-csrf-token</code> header on POST/PUT/PATCH/DELETE requests. Uses <code>crypto.timingSafeEqual</code> to compare tokens — this prevents timing attacks where an attacker tries thousands of guesses and measures response times.</span><span class="hi">POST/PUT/PATCH/DELETE requests par <code>x-csrf-token</code> header validate karta hai. <code>crypto.timingSafeEqual</code> use karta hai — timing attack se bachne ke liye.</span></td>
-    </tr>
-  </table>
+  <p class="en">After deploying v2.0, the frontend dev reported that <code>/auth/refresh</code> returned 401 "Refresh token is required" when called from <code>localhost:5173</code> to <code>api.succesly.in</code>. Three bugs were found and fixed.</p>
+  <p class="hi">v2.0 deploy karne ke baad, frontend se report aaya ki <code>/auth/refresh</code> pe 401 aa raha hai jab <code>localhost:5173</code> se <code>api.succesly.in</code> ko call karte hain. Teen bugs mile aur fix kiye.</p>
 
-  <h3><span class="en">Modified Files</span><span class="hi">Badli Gayi Files</span></h3>
-  <table>
-    <tr><th>File</th><th><span class="en">What changed</span><span class="hi">Kya badla</span></th></tr>
-    <tr>
-      <td><code>src/use-cases/auth/auth.use-case.ts</code></td>
-      <td><span class="en"><strong>Rewritten.</strong> <code>login()</code> now generates 3 tokens, creates a server-side session, stores refresh token as SHA-256 hash. Added <code>refresh()</code> for token rotation and <code>logout()</code> for session invalidation. Private <code>_createSession()</code> helper handles the common session creation logic.</span><span class="hi"><strong>Rewrite kiya.</strong> <code>login()</code> ab 3 tokens banata hai, server-side session create karta hai, refresh token SHA-256 hash ke roop mein store karta hai. <code>refresh()</code> aur <code>logout()</code> add kiye.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/middlewares/auth.middleware.ts</code></td>
-      <td><span class="en"><strong>Enhanced from 2-step to 3-step.</strong> Added: extract <code>session_id</code> from JWT → find session in DB → check <code>is_valid</code> and <code>expires_at</code> → attach <code>session.csrf_token</code> to <code>req.sessionCsrfToken</code> for downstream CSRF validation.</span><span class="hi"><strong>2-step se 3-step kiya.</strong> Ab JWT se <code>session_id</code> nikalta hai, DB mein session dhundta hai, validity check karta hai, aur <code>req.sessionCsrfToken</code> set karta hai.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/controllers/auth.controller.ts</code></td>
-      <td><span class="en">Added <code>refresh</code> handler (reads rt cookie, calls authUseCase.refresh, sets new cookie), <code>logout</code> handler (invalidates session, clears cookie). <code>login</code> updated to set HTTP-only cookie and return <code>{ accessToken, csrfToken, user }</code>.</span><span class="hi"><code>refresh</code> aur <code>logout</code> handlers add kiye. <code>login</code> ab HTTP-only cookie set karta hai aur <code>{ accessToken, csrfToken, user }</code> return karta hai.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/routes/auth/auth.routes.ts</code></td>
-      <td><span class="en">Added <code>POST /refresh</code> and <code>POST /logout</code> (with auth + CSRF middleware on logout).</span><span class="hi"><code>POST /refresh</code> aur <code>POST /logout</code> add kiye.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/app.ts</code></td>
-      <td><span class="en">Added <code>cookie-parser</code> middleware. Restored restrictive CORS (whitelist only, no wildcard). Added <code>x-csrf-token</code> to allowed headers.</span><span class="hi"><code>cookie-parser</code> add kiya. CORS strict kar diya (sirf whitelist). <code>x-csrf-token</code> allowed headers mein add kiya.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/core/entities/user.entity.ts</code></td>
-      <td><span class="en">Added <code>session_id: string</code> to <code>IJwtPayload</code> interface — JWT now carries the DB session ID so middleware can look it up without an extra query.</span><span class="hi"><code>IJwtPayload</code> mein <code>session_id</code> add kiya — JWT mein ab session ID hoti hai.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/types/express.d.ts</code></td>
-      <td><span class="en">Added <code>sessionCsrfToken?: string</code> to Express Request type — set by auth middleware, read by CSRF middleware.</span><span class="hi">Express Request type mein <code>sessionCsrfToken</code> add kiya.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/utils/constants.ts</code></td>
-      <td><span class="en">Added: <code>ACCESS_TOKEN_EXPIRY</code> (15m), <code>REFRESH_TOKEN_EXPIRY_DAYS</code> (7), <code>REFRESH_TOKEN_BYTES</code> (64), <code>CSRF_TOKEN_BYTES</code> (32), <code>REFRESH_COOKIE_NAME</code> ('rt'), <code>CSRF_HEADER</code> ('x-csrf-token').</span><span class="hi">Naye constants add kiye: token expiry, bytes size, cookie name, header name.</span></td>
-    </tr>
-    <tr>
-      <td><code>src/middlewares/index.ts</code></td>
-      <td><span class="en">Added export for <code>csrfMiddleware</code>.</span><span class="hi"><code>csrfMiddleware</code> ka export add kiya.</span></td>
-    </tr>
-    <tr>
-      <td>
-        <code>src/routes/user/user.routes.ts</code><br/>
-        <code>src/routes/role/role.routes.ts</code><br/>
-        <code>src/routes/module/module.routes.ts</code><br/>
-        <code>src/routes/student/student.routes.ts</code><br/>
-        <code>src/routes/marks/marks.routes.ts</code><br/>
-        <code>src/routes/api-key/api-key.routes.ts</code><br/>
-        <code>src/routes/booking/booking.routes.ts</code>
-      </td>
-      <td><span class="en">Added <code>csrfMiddleware</code> to the middleware chain on all protected routes — inserted between <code>authMiddleware</code> and <code>apiKeyMiddleware</code>.</span><span class="hi">Sab protected routes mein <code>csrfMiddleware</code> add kiya — <code>authMiddleware</code> aur <code>apiKeyMiddleware</code> ke beech.</span></td>
-    </tr>
-  </table>
+  <h2>Bug 1 — SameSite=None Requires Secure=true</h2>
+  <div class="vuln-card">
+    <h4>Root Cause</h4>
+    <p class="en">The original code set <code>secure: process.env.NODE_ENV === 'production'</code> as a module-level constant. On the deployed server, <code>NODE_ENV=development</code> (dev .env was used). So <code>secure: false</code> was sent. Browsers reject <code>SameSite=None</code> without <code>Secure=true</code>, so the <code>rt</code> cookie was silently dropped — never stored in the browser.</p>
+    <p class="hi">Purana code <code>secure: NODE_ENV === 'production'</code> use karta tha. Server pe <code>NODE_ENV=development</code> tha (dev .env). Toh <code>secure: false</code> jata tha. Browsers <code>SameSite=None</code> ko <code>Secure=true</code> ke bina reject karte hain — <code>rt</code> cookie store hi nahi hoti thi.</p>
+  </div>
+  <div class="fix-card">
+    <h4>Fix — Per-Request Cookie Options</h4>
+    <p class="en">Cookie options are now computed per-request by reading the actual connection type, not <code>NODE_ENV</code>:</p>
+    <p class="hi">Cookie options ab har request pe actual connection type dekh ke decide hoti hai, <code>NODE_ENV</code> se nahi:</p>
+    <pre><span class="keyword">function</span> <span class="fn">buildCookieOptions</span>(req) {
+  <span class="keyword">const</span> isHttps = req.secure || req.headers[<span class="string">'x-forwarded-proto'</span>] === <span class="string">'https'</span>;
+  <span class="keyword">return</span> {
+    httpOnly: <span class="keyword">true</span>,
+    secure:   isHttps,                         <span class="comment">// true on real HTTPS</span>
+    sameSite: isHttps ? <span class="string">'none'</span> : <span class="string">'lax'</span>,      <span class="comment">// none+secure on HTTPS, lax on local</span>
+    maxAge:   <span class="num">7</span> * <span class="num">24</span> * <span class="num">60</span> * <span class="num">60</span> * <span class="num">1000</span>,
+    path:     <span class="string">'/api/v1/auth'</span>,                 <span class="comment">// scope to auth routes only</span>
+  };
+}</pre>
+    <p class="en"><strong>Why SameSite=None?</strong> The frontend (localhost:5173 or succesly.in) is a <em>different origin</em> from the API (api.succesly.in). Browsers block cookies on cross-origin requests unless <code>SameSite=None; Secure</code> is set. SameSite=None MUST be paired with Secure=true — the browser rejects it otherwise.</p>
+    <p class="hi"><strong>SameSite=None kyun?</strong> Frontend (localhost:5173 ya succesly.in) aur API (api.succesly.in) alag origins hain. Cross-origin requests pe browser cookies block karta hai jab tak <code>SameSite=None; Secure</code> na ho.</p>
+  </div>
 
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <h2>Bug 2 — Express Didn't Know the Request Was HTTPS</h2>
+  <div class="vuln-card">
+    <h4>Root Cause</h4>
+    <p class="en">The server runs behind nginx/Caddy (reverse proxy). The proxy terminates HTTPS and forwards requests to Express as plain HTTP internally. Express saw the internal HTTP connection and set <code>req.secure = false</code>, even though the original request was HTTPS.</p>
+    <p class="hi">Server nginx ke peeche hai. Nginx HTTPS terminate karta hai aur Express ko plain HTTP bhejta hai. Express dekhta tha HTTP connection, toh <code>req.secure = false</code> hota tha — chahe real request HTTPS ho.</p>
+  </div>
+  <div class="fix-card">
+    <h4>Fix — Trust Proxy in app.ts</h4>
+    <pre><span class="comment">// app.ts — BEFORE helmet, BEFORE cors, first line</span>
+app.<span class="fn">set</span>(<span class="string">'trust proxy'</span>, <span class="num">1</span>);
+<span class="comment">// Now Express reads X-Forwarded-Proto from nginx</span>
+<span class="comment">// req.secure = true when real connection was HTTPS</span></pre>
+    <p class="en">With this set, <code>req.secure</code> correctly reflects the real protocol. The <code>buildCookieOptions</code> function then returns <code>SameSite=None; Secure=true</code> on production, and <code>SameSite=Lax; Secure=false</code> on local HTTP.</p>
+    <p class="hi">Is ke baad <code>req.secure</code> sahi protocol reflect karta hai. Production pe <code>SameSite=None; Secure=true</code>, local pe <code>SameSite=Lax; Secure=false</code>.</p>
+  </div>
+
+  <h2>Bug 3 — Swagger Wasn't Showing /refresh and /logout</h2>
+  <div class="fix-card">
+    <h4>Fix</h4>
+    <p class="en">The <code>auth.swagger.ts</code> file was never updated after adding the new endpoints. The full file was rewritten to include all 4 auth endpoints with correct schemas, cookie parameter on /refresh, and CSRF header on /logout.</p>
+    <p class="hi"><code>auth.swagger.ts</code> update nahi hua tha. Poora file rewrite kiya — sabhi 4 endpoints, cookie parameter refresh pe, CSRF header logout pe.</p>
+    <p class="en">Also added <code>withCredentials: true</code> to Swagger UI options in <code>app.ts</code> so the <code>rt</code> cookie is sent when you click "Execute" in Swagger.</p>
+    <p class="hi"><code>app.ts</code> mein <code>withCredentials: true</code> add kiya Swagger UI ke liye — ab Swagger mein "Execute" karne pe <code>rt</code> cookie automatically send hoti hai.</p>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 7 · MERITS & DEMERITS -->
+<!-- PAGE 7 · FILES CHANGED -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 5 · Merits &amp; Demerits</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 5 · Files Changed</span></div>
   <h1>
-    <span class="en">5. Merits &amp; Demerits — Honest Analysis</span>
-    <span class="hi">5. Faide aur Nuksan — Honest Analysis</span>
+    <span class="en">5. Files Changed — What &amp; Why</span>
+    <span class="hi">5. Kaunse Files Badle — Kya aur Kyun</span>
   </h1>
 
-  <div class="merit-grid">
-    <div class="merit-card">
-      <div class="mc-head green">
-        <span class="en">✅ Merits (What This Gets Right)</span>
-        <span class="hi">✅ Faide (Kya Theek Hai)</span>
-      </div>
-      <div class="mc-body">
-        <ul>
-          <li class="en"><strong>Cookie forgery is impossible:</strong> Access token is in memory — there is no cookie to fake. Setting any random cookie does nothing.</li>
-          <li class="hi"><strong>Fake cookie attack impossible:</strong> Access token memory mein hai — fake karne ko cookie hai hi nahi.</li>
-
-          <li class="en"><strong>Session theft is nearly impossible:</strong> Refresh token is HTTP-only — extensions cannot read it, and it's stored as a hash in DB so even a DB leak doesn't expose raw tokens.</li>
-          <li class="hi"><strong>Session chori lagbhag impossible:</strong> Refresh token HTTP-only hai — extension padh nahi sakta. DB mein hash hai, toh DB leak se bhi raw token nahi milega.</li>
-
-          <li class="en"><strong>Instant logout:</strong> <code>is_valid = false</code> in DB means the session is dead even if the access token hasn't expired yet. Next request will be rejected in Step 2 of the middleware chain.</li>
-          <li class="hi"><strong>Instant logout:</strong> DB mein <code>is_valid = false</code> set ho jaata hai. Chahe access token 15 min ke andar expire na hua ho, agla request Step 2 par hi reject hoga.</li>
-
-          <li class="en"><strong>CSRF protected:</strong> Even if an attacker tricks the browser into making a cross-site POST, they can't provide the <code>x-csrf-token</code> header (it's in memory, not a cookie), so the request fails.</li>
-          <li class="hi"><strong>CSRF protected:</strong> Agar koi browser ko cross-site POST karwa bhi de, wo <code>x-csrf-token</code> nahi de sakta (wo memory mein hai, cookie mein nahi).</li>
-
-          <li class="en"><strong>Token rotation:</strong> Every refresh invalidates the old session. Replay attacks with old refresh tokens are impossible.</li>
-          <li class="hi"><strong>Token rotation:</strong> Har refresh par purana session invalid. Purane tokens se replay attack nahi ho sakta.</li>
-
-          <li class="en"><strong>Short-lived access tokens (15 min):</strong> Even if somehow intercepted (e.g. server logs), they expire quickly.</li>
-          <li class="hi"><strong>Short-lived access tokens (15 min):</strong> Agar kisi ne intercept bhi kar liya, 15 minute mein expire ho jaayega.</li>
-
-          <li class="en"><strong>SameSite=Strict cookie:</strong> The refresh token cookie is never sent on cross-site requests — even without CSRF protection it would be partially safe.</li>
-          <li class="hi"><strong>SameSite=Strict cookie:</strong> Refresh token cookie cross-site requests mein send hi nahi hoti.</li>
-
-          <li class="en"><strong>Zero-trust user status:</strong> Every request re-checks if the user is still active in DB. Admin can deactivate a user mid-session.</li>
-          <li class="hi"><strong>Zero-trust user status:</strong> Har request mein user active hai ya nahi DB se check hota hai. Admin mid-session deactivate kar sakta hai.</li>
-
-          <li class="en"><strong>Auto-cleanup:</strong> MongoDB TTL index deletes expired sessions automatically — no cron job needed.</li>
-          <li class="hi"><strong>Auto-cleanup:</strong> MongoDB TTL se expired sessions apne aap delete — koi cron job nahi chahiye.</li>
-        </ul>
-      </div>
+  <div class="layer-stack">
+    <div class="layer-card">
+      <div class="layer-label">CREATED<br/>session.model.ts</div>
+      <div class="layer-desc"><code>src/frameworks/mongo/model/session.model.ts</code><br/>Server-side session store. Stores refresh_token_hash (SHA-256, never raw), csrf_token, expires_at, is_valid, user_agent, ip_address. TTL index auto-deletes expired sessions. Index on refresh_token_hash for fast lookup.</div>
     </div>
-
-    <div class="merit-card">
-      <div class="mc-head red">
-        <span class="en">⚠️ Demerits (Trade-offs &amp; Risks)</span>
-        <span class="hi">⚠️ Nuksan (Trade-offs aur Risks)</span>
-      </div>
-      <div class="mc-body">
-        <ul>
-          <li class="en"><strong>More DB queries per request:</strong> Auth middleware now makes 2 DB queries per request (session + user) instead of 1. At scale, this adds latency — mitigatable with Redis session cache.</li>
-          <li class="hi"><strong>Zyada DB queries:</strong> Har request mein ab 2 DB queries (session + user) hoti hain. Scale par latency badh sakti hai — Redis se fix ho sakta hai.</li>
-
-          <li class="en"><strong>Frontend memory is volatile:</strong> If the user closes the tab/browser, the access token and CSRF token are lost. The refresh token cookie survives (browser saves cookies), so the user can silently re-auth — but only if the frontend handles this on app load.</li>
-          <li class="hi"><strong>Memory volatile hai:</strong> Tab close karo, access token aur CSRF token gone. Refresh cookie survive karti hai, par frontend ko app load par silent refresh handle karna hoga.</li>
-
-          <li class="en"><strong>Multiple tabs / devices:</strong> Each login creates a new session. Multiple open tabs share the same access token only if stored in a shared state (e.g. React context that all tabs read). Otherwise, each tab must refresh independently.</li>
-          <li class="hi"><strong>Multiple tabs:</strong> Har login naya session banata hai. Multiple tabs mein access token share karna frontend ki responsibility hai.</li>
-
-          <li class="en"><strong>No "remember me" feature:</strong> Refresh token expires after 7 days regardless. Long-term sessions would need configurable expiry.</li>
-          <li class="hi"><strong>"Remember me" nahi:</strong> Refresh token 7 din mein expire ho jaata hai. Long-term session ke liye configurable expiry chahiye hoga.</li>
-
-          <li class="en"><strong>HTTPS required in production:</strong> The <code>secure</code> cookie flag is on in production. If the server runs HTTP (not HTTPS), the refresh cookie won't be sent. This is the right behavior — but requires HTTPS infrastructure.</li>
-          <li class="hi"><strong>Production mein HTTPS zaruri:</strong> Production mein <code>secure</code> flag on hai. HTTP par refresh cookie send nahi hogi. HTTPS infrastructure chahiye.</li>
-
-          <li class="en"><strong>Session DB dependency:</strong> If the <code>sessions</code> MongoDB collection is unavailable, all authenticated requests will fail (session lookup fails). A Redis fallback would make this more resilient.</li>
-          <li class="hi"><strong>Session DB pe dependency:</strong> Agar <code>sessions</code> collection unavailable ho, sab authenticated requests fail ho jaayenge. Redis fallback se zyada resilient banaya ja sakta hai.</li>
-
-          <li class="en"><strong>No multi-device logout:</strong> Logging out on one device only invalidates that device's session. "Logout everywhere" would require invalidating all sessions for a user_id.</li>
-          <li class="hi"><strong>Multi-device logout nahi:</strong> Ek device par logout sirf us device ka session invalid karta hai. "Sab jagah logout" ke liye sab sessions invalid karne honge.</li>
-        </ul>
-      </div>
+    <div class="layer-card">
+      <div class="layer-label">CREATED<br/>csrf.middleware.ts</div>
+      <div class="layer-desc"><code>src/middlewares/csrf.middleware.ts</code><br/>Validates x-csrf-token header on POST/PUT/PATCH/DELETE only. Skips GET/OPTIONS. Uses crypto.timingSafeEqual to prevent timing attacks. Runs after authMiddleware (needs req.sessionCsrfToken).</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">REWRITTEN<br/>auth.use-case.ts</div>
+      <div class="layer-desc"><code>src/use-cases/auth/auth.use-case.ts</code><br/>Complete rewrite. Added login() (3-token generation + session creation), refresh() (rotation — invalidate old, create new), logout() (set is_valid=false), private _createSession() helper. Refresh token stored as SHA-256 hash only.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>auth.middleware.ts</div>
+      <div class="layer-desc"><code>src/middlewares/auth.middleware.ts</code><br/>Extended from 2-step to 3-step. Step 2 now finds session by session_id from JWT payload, checks is_valid=true and not expired, attaches csrf_token to req.sessionCsrfToken for csrfMiddleware. Step 3 checks user is_active in DB.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>auth.controller.ts</div>
+      <div class="layer-desc"><code>src/controllers/auth.controller.ts</code><br/>Added buildCookieOptions(req) per-request function (v2.1 fix). Added refresh and logout handlers. Login now returns {accessToken, csrfToken, user} instead of {token}.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>auth.routes.ts</div>
+      <div class="layer-desc"><code>src/routes/auth/auth.routes.ts</code><br/>Added POST /refresh (public), POST /logout (authMiddleware + csrfMiddleware), GET /profile (authMiddleware).</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>auth.swagger.ts</div>
+      <div class="layer-desc"><code>src/routes/auth/auth.swagger.ts</code><br/>Complete rewrite. All 4 auth endpoints documented. Cookie parameter on /refresh. CSRF header parameter on /logout. Correct response schemas showing accessToken + csrfToken.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>app.ts</div>
+      <div class="layer-desc"><code>src/app.ts</code><br/>Added app.set('trust proxy', 1), cookie-parser middleware, withCredentials:true in Swagger UI, restrictive CORS whitelist (5 origins), x-csrf-token in allowedHeaders.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>constants.ts</div>
+      <div class="layer-desc"><code>src/utils/constants.ts</code><br/>Added ACCESS_TOKEN_EXPIRY='15m', REFRESH_TOKEN_EXPIRY_DAYS=7, REFRESH_TOKEN_BYTES=64, CSRF_TOKEN_BYTES=32, REFRESH_COOKIE_NAME='rt', CSRF_HEADER='x-csrf-token'.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>All Route Files</div>
+      <div class="layer-desc"><code>user.routes.ts, role.routes.ts, module.routes.ts, student.routes.ts, marks.routes.ts, api-key.routes.ts, booking.routes.ts</code><br/>All now use: <code>router.use(authMiddleware, csrfMiddleware, apiKeyMiddleware)</code> — CSRF protection on every protected route.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>user.entity.ts</div>
+      <div class="layer-desc"><code>src/core/entities/user.entity.ts</code><br/>IJwtPayload now includes session_id field that links the JWT to its server-side session document.</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-label">MODIFIED<br/>express.d.ts</div>
+      <div class="layer-desc"><code>src/types/express.d.ts</code><br/>Request interface extended with: user?: IJwtPayload, isApiKeyAuthenticated?: boolean, sessionCsrfToken?: string.</div>
     </div>
   </div>
-
-  <div class="callout tip">
-    <div class="callout-title">
-      <span class="en">Future Improvements</span>
-      <span class="hi">Future mein Kya Improve Ho Sakta Hai</span>
-    </div>
-    <ul>
-      <li class="en">Add Redis as session cache to reduce MongoDB load on auth middleware</li>
-      <li class="en">Add "logout all devices" endpoint — <code>Session.updateMany({ user_id, is_valid: true }, { is_valid: false })</code></li>
-      <li class="en">Track multiple active sessions per user and show them in a "Manage Sessions" page</li>
-      <li class="en">Add suspicious login detection (new country / IP mismatch)</li>
-      <li class="hi">Redis se session cache banao — MongoDB load kam hogi auth middleware par</li>
-      <li class="hi">"Sab devices logout" endpoint add karo</li>
-      <li class="hi">User ke sab active sessions track karo aur "Sessions Manage" page banao</li>
-      <li class="hi">Suspicious login detect karo (naya country / IP mismatch)</li>
-    </ul>
-  </div>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 8 · API REFERENCE -->
+<!-- PAGE 8 · API REFERENCE -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 6 · API Endpoint Reference</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 6 · API Reference</span></div>
   <h1>
     <span class="en">6. API Endpoint Reference</span>
-    <span class="hi">6. API Endpoints ka Reference</span>
+    <span class="hi">6. API Endpoints ki Detail</span>
   </h1>
 
-  <h3>POST /api/v1/auth/login</h3>
+  <h2>POST /api/v1/auth/login</h2>
   <table>
-    <tr><th>Field</th><th>Detail</th></tr>
-    <tr><td>Auth required</td><td><span class="badge green">No</span></td></tr>
-    <tr><td>Request body</td><td><code>{ "email": "...", "password": "..." }</code></td></tr>
-    <tr><td>Success response</td><td><code>{ success: true, data: { accessToken, csrfToken, user: { user_id, email, role_id } } }</code></td></tr>
-    <tr><td>Cookie set</td><td><code>rt</code> (HTTP-only, SameSite=Strict, path=/api/v1/auth, 7 days)</td></tr>
-    <tr><td>What to do in frontend</td><td>
-      <span class="en">Store <code>accessToken</code> and <code>csrfToken</code> in memory (JS state). Never put them in localStorage or a cookie.</span>
-      <span class="hi"><code>accessToken</code> aur <code>csrfToken</code> memory mein rakho. localStorage ya cookie mein mat daalo.</span>
-    </td></tr>
+    <tr><th colspan="2">Request</th></tr>
+    <tr><td>Body</td><td><code>{ "email": "admin@example.com", "password": "Admin@1234" }</code></td></tr>
+    <tr><th colspan="2">Response 200</th></tr>
+    <tr><td>Body</td><td><code>{ success, message, data: { accessToken, csrfToken, user } }</code></td></tr>
+    <tr><td>Set-Cookie</td><td><code>rt=&lt;token&gt;; Path=/api/v1/auth; HttpOnly; SameSite=None; Secure</code></td></tr>
+    <tr><th colspan="2">Errors</th></tr>
+    <tr><td>400</td><td>Validation error (missing email/password)</td></tr>
+    <tr><td>401</td><td>Invalid credentials / account deactivated</td></tr>
   </table>
 
-  <h3>POST /api/v1/auth/refresh</h3>
+  <h2>POST /api/v1/auth/refresh</h2>
   <table>
-    <tr><th>Field</th><th>Detail</th></tr>
-    <tr><td>Auth required</td><td><span class="badge green">No (uses rt cookie automatically)</span></td></tr>
-    <tr><td>Request body</td><td><span class="en">Empty — refresh token is read from the <code>rt</code> cookie</span><span class="hi">Empty — refresh token <code>rt</code> cookie se automatically aata hai</span></td></tr>
-    <tr><td>Success response</td><td><code>{ success: true, data: { accessToken, csrfToken } }</code></td></tr>
-    <tr><td>Cookie set</td><td><span class="en">New <code>rt</code> cookie (old one is rotated/invalidated)</span><span class="hi">Naya <code>rt</code> cookie (purana invalidate)</span></td></tr>
-    <tr><td>When to call</td><td><span class="en">Call this when any protected API returns 401 with message "Token has expired". Retry the original request after getting new tokens.</span><span class="hi">Koi bhi protected API 401 "Token has expired" de tab call karo. Naye tokens milne ke baad original request retry karo.</span></td></tr>
+    <tr><th colspan="2">Request</th></tr>
+    <tr><td>Cookie</td><td><code>rt=&lt;token&gt;</code> — browser sends automatically (HTTP-only)</td></tr>
+    <tr><td>Body</td><td>Empty (not required)</td></tr>
+    <tr><th colspan="2">Response 200</th></tr>
+    <tr><td>Body</td><td><code>{ success, message, data: { accessToken, csrfToken } }</code></td></tr>
+    <tr><td>Set-Cookie</td><td>New rotated <code>rt</code> cookie (old session invalidated)</td></tr>
+    <tr><th colspan="2">Errors</th></tr>
+    <tr><td>401</td><td>No rt cookie / cookie invalid or expired / session revoked</td></tr>
   </table>
 
-  <h3>POST /api/v1/auth/logout</h3>
+  <h2>POST /api/v1/auth/logout</h2>
   <table>
-    <tr><th>Field</th><th>Detail</th></tr>
-    <tr><td>Auth required</td><td><span class="badge red">Yes — Bearer token + x-csrf-token header</span></td></tr>
-    <tr><td>Request body</td><td><span class="en">Empty</span><span class="hi">Empty</span></td></tr>
-    <tr><td>Success response</td><td><code>{ success: true, message: "Logged out successfully" }</code></td></tr>
-    <tr><td>Cookie cleared</td><td><code>rt</code> cookie is deleted</td></tr>
-    <tr><td>What to do in frontend</td><td><span class="en">After success: clear <code>accessToken</code> and <code>csrfToken</code> from memory, redirect to login.</span><span class="hi">Success ke baad: memory se <code>accessToken</code> aur <code>csrfToken</code> clear karo, login page par redirect karo.</span></td></tr>
+    <tr><th colspan="2">Request</th></tr>
+    <tr><td>Header</td><td><code>Authorization: Bearer &lt;accessToken&gt;</code></td></tr>
+    <tr><td>Header</td><td><code>x-csrf-token: &lt;csrfToken&gt;</code></td></tr>
+    <tr><th colspan="2">Response 200</th></tr>
+    <tr><td>Body</td><td><code>{ success: true, message: "Logged out successfully", data: null }</code></td></tr>
+    <tr><td>Set-Cookie</td><td><code>rt=; Max-Age=0</code> (cookie cleared)</td></tr>
+    <tr><th colspan="2">Errors</th></tr>
+    <tr><td>401</td><td>Missing/invalid/expired access token</td></tr>
+    <tr><td>403</td><td>Missing or invalid x-csrf-token header</td></tr>
   </table>
 
-  <h3>GET /api/v1/auth/profile</h3>
+  <h2>GET /api/v1/auth/profile</h2>
   <table>
-    <tr><th>Field</th><th>Detail</th></tr>
-    <tr><td>Auth required</td><td><span class="badge red">Yes — Bearer token only (GET, no CSRF needed)</span></td></tr>
-    <tr><td>Success response</td><td><span class="en">Full user object with role details (password excluded)</span><span class="hi">User ka poora object role ke saath (password nahi)</span></td></tr>
-    <tr><td>Use case</td><td><span class="en">On app load: call this to verify session is valid. If it returns 401, call /refresh. If refresh also fails, redirect to login.</span><span class="hi">App load par: call karo session valid hai ya nahi. 401 aaye toh /refresh try karo. Refresh bhi fail ho toh login par redirect karo.</span></td></tr>
+    <tr><th colspan="2">Request</th></tr>
+    <tr><td>Header</td><td><code>Authorization: Bearer &lt;accessToken&gt;</code></td></tr>
+    <tr><th colspan="2">Response 200</th></tr>
+    <tr><td>Body</td><td><code>{ success, message, data: { ...fullUserObject } }</code> — password excluded</td></tr>
+    <tr><th colspan="2">Errors</th></tr>
+    <tr><td>401</td><td>Unauthorized</td></tr>
   </table>
 
-  <h3>
-    <span class="en">Headers Required for Protected Endpoints</span>
-    <span class="hi">Protected Endpoints ke liye Headers</span>
-  </h3>
+  <h2>All Other Protected Endpoints</h2>
   <table>
-    <tr><th>Header</th><th><span class="en">When required</span><span class="hi">Kab chahiye</span></th><th>Example</th></tr>
-    <tr><td><code>Authorization</code></td><td><span class="en">Every protected endpoint</span><span class="hi">Har protected endpoint par</span></td><td><code>Bearer eyJhbGci...</code></td></tr>
-    <tr><td><code>x-csrf-token</code></td><td><span class="en">POST / PUT / PATCH / DELETE only</span><span class="hi">Sirf POST / PUT / PATCH / DELETE par</span></td><td><code>a3f9bc84...</code></td></tr>
-    <tr><td><code>x-api-key</code></td><td><span class="en">API key routes (most non-auth endpoints)</span><span class="hi">API key routes par</span></td><td><code>sk_live_...</code></td></tr>
+    <tr><th>Header</th><th>Required On</th><th>Value</th></tr>
+    <tr><td>Authorization</td><td>All protected routes</td><td><code>Bearer &lt;accessToken&gt;</code></td></tr>
+    <tr><td>x-csrf-token</td><td>POST, PUT, PATCH, DELETE</td><td>CSRF token from login/refresh response</td></tr>
+    <tr><td>x-api-key</td><td>Routes that use apiKeyMiddleware</td><td>API key from /api-keys endpoint</td></tr>
   </table>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 9 · BACKEND DEV GUIDE -->
+<!-- PAGE 9 · BACKEND DEV GUIDE -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 7 · Backend Developer Guide</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 7 · Backend Developer Guide</span></div>
   <h1>
     <span class="en">7. Backend Developer Guide — Adding New Routes</span>
-    <span class="hi">7. Backend Developer Guide — Naye Routes Kaise Banaye</span>
+    <span class="hi">7. Backend Developer Guide — Naye Routes Kaise Banao</span>
   </h1>
 
-  <h2>
-    <span class="en">7.1 New Protected Route Checklist</span>
-    <span class="hi">7.1 Naye Route ka Checklist</span>
-  </h2>
-  <p class="en">Every time you create a new route file that needs authentication, follow this checklist exactly:</p>
-  <p class="hi">Jab bhi naya route file banao jo authentication chahta ho, ye checklist follow karo:</p>
-
-  <ul class="checklist">
-    <li class="en">Import <code>authMiddleware</code> and <code>csrfMiddleware</code> from <code>'../../middlewares'</code></li>
-    <li class="hi"><code>authMiddleware</code> aur <code>csrfMiddleware</code> import karo <code>'../../middlewares'</code> se</li>
-    <li class="en">Apply <code>router.use(authMiddleware, csrfMiddleware, apiKeyMiddleware)</code> — in this exact order</li>
-    <li class="hi"><code>router.use(authMiddleware, csrfMiddleware, apiKeyMiddleware)</code> — isi exact order mein</li>
-    <li class="en">NEVER put <code>csrfMiddleware</code> before <code>authMiddleware</code> — CSRF middleware needs <code>req.sessionCsrfToken</code> which is set by auth middleware</li>
-    <li class="hi"><code>csrfMiddleware</code> ko <code>authMiddleware</code> se pehle mat daalo — CSRF middleware ko <code>req.sessionCsrfToken</code> chahiye jo auth middleware set karta hai</li>
-    <li class="en">For public routes (no auth needed), do NOT apply any of these middlewares</li>
-    <li class="hi">Public routes ke liye (no auth) koi middleware mat daalo</li>
-    <li class="en">Add the new route file to <code>src/routes/index.ts</code></li>
-    <li class="hi">Naya route file <code>src/routes/index.ts</code> mein add karo</li>
-    <li class="en">Run <code>npx tsc --noEmit</code> to confirm zero TypeScript errors before committing</li>
-    <li class="hi">Commit se pehle <code>npx tsc --noEmit</code> chalaao — zero errors honi chahiye</li>
-  </ul>
-
-  <h2>
-    <span class="en">7.2 Standard Route Template</span>
-    <span class="hi">7.2 Standard Route Template</span>
-  </h2>
-<pre><span class="comment">// src/routes/my-feature/my-feature.routes.ts</span>
+  <h2>7.1 New Protected Route — Standard Pattern</h2>
+  <pre><span class="comment">// src/routes/your-feature/your.routes.ts</span>
 <span class="keyword">import</span> { Router } <span class="keyword">from</span> <span class="string">'express'</span>;
-<span class="keyword">import</span> {
-  authMiddleware,
-  csrfMiddleware,
-  apiKeyMiddleware,
-  requirePermission,
-} <span class="keyword">from</span> <span class="string">'../../middlewares'</span>;
-<span class="keyword">import</span> { getAll, getById, create, update, remove } <span class="keyword">from</span> <span class="string">'../../controllers/my-feature.controller'</span>;
+<span class="keyword">import</span> { authMiddleware, csrfMiddleware } <span class="keyword">from</span> <span class="string">'../../middlewares'</span>;
+<span class="keyword">import</span> { apiKeyMiddleware } <span class="keyword">from</span> <span class="string">'../../middlewares/api-key.middleware'</span>;
+<span class="keyword">import</span> * <span class="keyword">as</span> YourController <span class="keyword">from</span> <span class="string">'../../controllers/your.controller'</span>;
+<span class="keyword">import</span> { requirePermission } <span class="keyword">from</span> <span class="string">'../../middlewares/permission.middleware'</span>;
 
-<span class="keyword">const</span> router = Router();
+<span class="keyword">const</span> router = <span class="fn">Router</span>();
 
-<span class="comment">// All routes in this file require: valid JWT + valid session + CSRF (for writes) + valid API key</span>
+<span class="comment">// Apply auth + CSRF + API key to ALL routes in this file</span>
 router.<span class="fn">use</span>(authMiddleware, csrfMiddleware, apiKeyMiddleware);
 
-router.<span class="fn">get</span>(<span class="string">'/'</span>,     requirePermission(<span class="string">'my_feature'</span>, <span class="string">'view'</span>),   getAll);
-router.<span class="fn">get</span>(<span class="string">'/:id'</span>,  requirePermission(<span class="string">'my_feature'</span>, <span class="string">'view'</span>),   getById);
-router.<span class="fn">post</span>(<span class="string">'/'</span>,    requirePermission(<span class="string">'my_feature'</span>, <span class="string">'create'</span>), create);   <span class="comment">// CSRF auto-checked</span>
-router.<span class="fn">patch</span>(<span class="string">'/:id'</span>, requirePermission(<span class="string">'my_feature'</span>, <span class="string">'edit'</span>),   update);   <span class="comment">// CSRF auto-checked</span>
-router.<span class="fn">delete</span>(<span class="string">'/:id'</span>,requirePermission(<span class="string">'my_feature'</span>, <span class="string">'delete'</span>), remove);   <span class="comment">// CSRF auto-checked</span>
+<span class="comment">// GET — no CSRF header needed on reads, but auth still runs</span>
+router.<span class="fn">get</span>(<span class="string">'/'</span>, <span class="fn">requirePermission</span>(<span class="string">'moduleId'</span>, <span class="string">'read'</span>), YourController.getAll);
+
+<span class="comment">// POST — CSRF token REQUIRED in x-csrf-token header</span>
+router.<span class="fn">post</span>(<span class="string">'/'</span>, <span class="fn">requirePermission</span>(<span class="string">'moduleId'</span>, <span class="string">'create'</span>), YourController.create);
 
 <span class="keyword">export default</span> router;</pre>
 
-  <h2>
-    <span class="en">7.3 Common Mistakes to Avoid</span>
-    <span class="hi">7.3 Common Galtiyan Jo Nahi Karni</span>
-  </h2>
+  <h2>7.2 Checklist for Every New Protected Route</h2>
+  <ul class="checklist">
+    <li class="en">Add <code>router.use(authMiddleware, csrfMiddleware)</code> at the top of the router file</li>
+    <li class="en">Register the router in <code>src/routes/index.ts</code></li>
+    <li class="en">If the route needs an API key, also add <code>apiKeyMiddleware</code></li>
+    <li class="en">Add a Swagger definition in a <code>*.swagger.ts</code> file — include the bearerAuth security and x-csrf-token parameter</li>
+    <li class="en">Add the Swagger spec to the main swagger config</li>
+    <li class="en">Test in Swagger: login first, copy csrfToken, paste in x-csrf-token header, call the endpoint</li>
+  </ul>
+
+  <h2>7.3 Common Mistakes to Avoid</h2>
   <table>
-    <tr><th><span class="en">Mistake</span><span class="hi">Galti</span></th><th><span class="en">Why it's wrong</span><span class="hi">Kyun galat hai</span></th><th><span class="en">Correct approach</span><span class="hi">Sahi tarika</span></th></tr>
-    <tr>
-      <td><span class="en">Putting <code>csrfMiddleware</code> before <code>authMiddleware</code></span><span class="hi"><code>csrfMiddleware</code> ko <code>authMiddleware</code> se pehle daalna</span></td>
-      <td><span class="en"><code>req.sessionCsrfToken</code> is not set yet — CSRF check will silently pass (no session = no check)</span><span class="hi"><code>req.sessionCsrfToken</code> abhi set nahi hua — CSRF check silently pass ho jaayega</span></td>
-      <td><code>authMiddleware, csrfMiddleware</code></td>
-    </tr>
-    <tr>
-      <td><span class="en">Skipping <code>csrfMiddleware</code> on a POST route</span><span class="hi">POST route par <code>csrfMiddleware</code> skip karna</span></td>
-      <td><span class="en">That route becomes CSRF-vulnerable even with the rest of the system working correctly</span><span class="hi">Wo route CSRF-vulnerable ho jaayega</span></td>
-      <td><span class="en">Always use <code>router.use(authMiddleware, csrfMiddleware, ...)</code></span><span class="hi">Hamesha <code>router.use(authMiddleware, csrfMiddleware, ...)</code> use karo</span></td>
-    </tr>
-    <tr>
-      <td><span class="en">Generating a long-lived access token (e.g. 7 days)</span><span class="hi">Long-lived access token banana (jaise 7 din)</span></td>
-      <td><span class="en">If intercepted, attacker has 7 days. Short-lived (15 min) + refresh is the safe pattern.</span><span class="hi">Agar intercept ho gaya, 7 din ka access mil jaayega.</span></td>
-      <td><code>ACCESS_TOKEN_EXPIRY = '15m'</code></td>
-    </tr>
-    <tr>
-      <td><span class="en">Sending access token in response as a <code>Set-Cookie</code></span><span class="hi">Access token ko <code>Set-Cookie</code> ke through bhejna</span></td>
-      <td><span class="en">Readable cookies can be copied by extensions</span><span class="hi">Readable cookies extension se copy ho sakti hain</span></td>
-      <td><span class="en">Return access token in response body only</span><span class="hi">Sirf response body mein return karo</span></td>
-    </tr>
-    <tr>
-      <td><span class="en">Not running <code>npx tsc --noEmit</code> before committing</span><span class="hi">Commit se pehle TypeScript check nahi karna</span></td>
-      <td><span class="en">Type errors are caught late — in production or CI</span><span class="hi">Type errors baad mein production ya CI mein pakde jaate hain</span></td>
-      <td><span class="en">Always run TSC check — it takes 5 seconds</span><span class="hi">Hamesha TSC check karo — 5 second lagta hai</span></td>
-    </tr>
+    <tr><th>Mistake</th><th>Consequence</th><th>Correct Approach</th></tr>
+    <tr><td>Forgetting csrfMiddleware on a router</td><td>POST routes are CSRF-vulnerable</td><td>Always: <code>router.use(authMiddleware, csrfMiddleware)</code></td></tr>
+    <tr><td>Storing refresh token raw in DB</td><td>If DB leaked, tokens can be used directly</td><td>Always store SHA-256 hash: <code>crypto.createHash('sha256').update(token).digest('hex')</code></td></tr>
+    <tr><td>Hard-coding cookie secure: false</td><td>SameSite=None rejected by browsers</td><td>Always use <code>buildCookieOptions(req)</code> from auth.controller</td></tr>
+    <tr><td>Putting session_id in access token then not checking DB</td><td>Logout has no effect on active tokens</td><td>Step 2 of authMiddleware MUST query MongoDB for session</td></tr>
+    <tr><td>Adding a new origin to CORS without thinking</td><td>Unintended domains can send credentialed requests</td><td>Only add origins that your team controls</td></tr>
   </table>
 
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <h2>7.4 Middleware Chain Quick Reference</h2>
+  <div class="layer-stack">
+    <div class="layer-card"><div class="layer-label">Public Route</div><div class="layer-desc">No middleware. Example: POST /auth/login, POST /auth/refresh</div></div>
+    <div class="layer-card"><div class="layer-label">Auth Only (GET)</div><div class="layer-desc"><code>authMiddleware</code> → controller. CSRF middleware runs but skips GET automatically.</div></div>
+    <div class="layer-card"><div class="layer-label">Protected Mutation</div><div class="layer-desc"><code>authMiddleware</code> → <code>csrfMiddleware</code> → controller. Frontend MUST send x-csrf-token header.</div></div>
+    <div class="layer-card"><div class="layer-label">Protected + API Key</div><div class="layer-desc"><code>authMiddleware</code> → <code>csrfMiddleware</code> → <code>apiKeyMiddleware</code> → <code>requirePermission</code> → controller.</div></div>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 10 · FRONTEND GUIDE -->
+<!-- PAGE 10 · FRONTEND GUIDE PART 1 -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 8 · Frontend Implementation Guide</span></div>
-
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 8 · Frontend Integration Guide</span></div>
   <h1>
-    <span class="en">8. Frontend Implementation Guide</span>
-    <span class="hi">8. Frontend Implementation Guide</span>
+    <span class="en">8. Frontend Integration Guide (Fresher-Friendly)</span>
+    <span class="hi">8. Frontend Integration Guide (Freshers ke liye Simple Explanation)</span>
   </h1>
+  <p class="en">This section is written for a React + TypeScript frontend developer who may be new to authentication. Read Section 8.1 first — understanding where to store tokens is the most important concept.</p>
+  <p class="hi">Ye section React + TypeScript developer ke liye hai jo authentication mein naya hai. Pehle Section 8.1 padho — token kahan store karna hai ye sabse important concept hai.</p>
 
-  <div class="callout danger">
-    <div class="callout-title">
-      <span class="en">The Golden Rule — Read This First</span>
-      <span class="hi">Sabse Zaruri Rule — Pehle Ye Padho</span>
+  <h2>8.1 Where to Store What — Storage Diagram</h2>
+  <div class="storage-diagram">
+    <div class="storage-box good">
+      <div class="sb-title">✅ JS Memory (Variable)</div>
+      <div class="sb-body">Store here:<br/><strong>accessToken</strong><br/><strong>csrfToken</strong><br/><br/>Why: Extensions can't read variables. Cleared on page refresh (intentional — use /auth/refresh to restore).</div>
     </div>
-    <p class="en"><strong>Never store <code>accessToken</code> or <code>csrfToken</code> in <code>localStorage</code>, <code>sessionStorage</code>, or a readable cookie.</strong> These are readable by JavaScript and by browser extensions. Store them ONLY in a JavaScript variable (React state, Zustand, Pinia, etc.) that lives in memory.</p>
-    <p class="hi"><strong><code>accessToken</code> aur <code>csrfToken</code> kabhi <code>localStorage</code>, <code>sessionStorage</code>, ya readable cookie mein mat rakho.</strong> Ye JavaScript aur browser extensions se readable hain. Inhe sirf JS memory mein rakho — React state, Zustand, Pinia wagera.</p>
+    <div class="storage-box auto">
+      <div class="sb-title">🍪 HTTP-only Cookie (Browser-managed)</div>
+      <div class="sb-body">Stored automatically by browser:<br/><strong>rt (refresh token)</strong><br/><br/>You cannot read or write this from JS. Browser sends it automatically to /api/v1/auth/* routes. Do NOT touch this.</div>
+    </div>
+    <div class="storage-box bad">
+      <div class="sb-title">❌ localStorage / sessionStorage</div>
+      <div class="sb-body">NEVER store tokens here.<br/><br/>Why: Any JavaScript on the page (ads, extensions, XSS) can read localStorage. It persists across browser restarts — a stolen token lasts forever.</div>
+    </div>
   </div>
 
-  <h2>
-    <span class="en">8.1 Token Storage Strategy</span>
-    <span class="hi">8.1 Token Storage Strategy</span>
-  </h2>
-  <table>
-    <tr><th>Token</th><th><span class="en">Where to store on frontend</span><span class="hi">Frontend par kahan rakho</span></th><th><span class="en">Why</span><span class="hi">Kyun</span></th></tr>
-    <tr><td><code>accessToken</code></td><td><span class="en">React state / Zustand store / module-level variable</span><span class="hi">React state / Zustand / module variable</span></td><td><span class="en">In memory — gone on tab close, but safe from all JS attacks</span><span class="hi">Memory mein — tab close par gone, lekin JS attacks se safe</span></td></tr>
-    <tr><td><code>csrfToken</code></td><td><span class="en">Same store as accessToken</span><span class="hi">accessToken ke saath same store</span></td><td><span class="en">Needs to be sent as header on every write request</span><span class="hi">Har write request ke header mein bhejna hai</span></td></tr>
-    <tr><td><code>rt</code> (refresh)</td><td><span class="en">Browser handles it automatically (HTTP-only cookie)</span><span class="hi">Browser khud sambhalta hai (HTTP-only cookie)</span></td><td><span class="en">You cannot touch it from JavaScript — intentionally</span><span class="hi">JS se access hi nahi kar sakte — yahi point hai</span></td></tr>
-  </table>
+  <div class="callout info">
+    <div class="callout-title">Key Insight for Freshers</div>
+    <p class="en">When the user closes the tab or refreshes the page, your JS variables are cleared — <strong>that's by design</strong>. On the next page load, call <code>/auth/refresh</code> with the rt cookie (browser sends it automatically) to silently get a new accessToken + csrfToken. The user won't see a login screen unless their session truly expired (7 days of inactivity).</p>
+    <p class="hi">Jab user page refresh kare ya tab close kare, JS variables clear ho jaate hain — <strong>yahi design hai</strong>. Next page load pe <code>/auth/refresh</code> call karo (rt cookie browser automatic bhejta hai) — silently naya accessToken + csrfToken milega. User ko login screen nahi dikhega jab tak session truly expire na ho (7 din ki inactivity).</p>
+  </div>
 
-  <h2>
-    <span class="en">8.2 Login Integration (React Example)</span>
-    <span class="hi">8.2 Login Integration (React Example)</span>
-  </h2>
-<pre><span class="comment">// authStore.ts — using Zustand (or use React context / Redux)</span>
+  <h2>What Goes in Redux / Zustand?</h2>
+  <table>
+    <tr><th>Item</th><th>Store in State?</th><th>Reason</th></tr>
+    <tr><td>accessToken</td><td>✅ Yes — in auth store (memory)</td><td>Needs to be attached to every API request header</td></tr>
+    <tr><td>csrfToken</td><td>✅ Yes — in auth store (memory)</td><td>Needs to be in x-csrf-token header on mutations</td></tr>
+    <tr><td>user (id, email, role)</td><td>✅ Yes — in auth store</td><td>For displaying name, RBAC on frontend, etc.</td></tr>
+    <tr><td>isAuthenticated</td><td>✅ Yes — boolean</td><td>For ProtectedRoute component</td></tr>
+    <tr><td>refreshToken</td><td>❌ Never</td><td>It's in an HTTP-only cookie — you can't access it anyway</td></tr>
+    <tr><td>accessToken in localStorage</td><td>❌ Never</td><td>Security vulnerability</td></tr>
+  </table>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
+
+<!-- PAGE 11 · FRONTEND GUIDE PART 2 -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 8 · Frontend Guide (Auth Store + Login)</span></div>
+
+  <h2>8.2 Auth Store with Zustand (Recommended)</h2>
+  <pre><span class="comment">// src/store/authStore.ts</span>
 <span class="keyword">import</span> { create } <span class="keyword">from</span> <span class="string">'zustand'</span>;
 
 <span class="keyword">interface</span> AuthState {
-  accessToken:  <span class="prop">string | null</span>;
-  csrfToken:    <span class="prop">string | null</span>;
-  user:         <span class="prop">object | null</span>;
-  setTokens:    (accessToken: <span class="prop">string</span>, csrfToken: <span class="prop">string</span>, user: <span class="prop">object</span>) =&gt; <span class="prop">void</span>;
-  clearTokens:  () =&gt; <span class="prop">void</span>;
+  accessToken: <span class="keyword">string</span> | <span class="keyword">null</span>;
+  csrfToken:   <span class="keyword">string</span> | <span class="keyword">null</span>;
+  user:        { user_id: <span class="keyword">string</span>; email: <span class="keyword">string</span>; role_id: <span class="keyword">string</span> } | <span class="keyword">null</span>;
+  isAuthenticated: <span class="keyword">boolean</span>;
+  <span class="fn">setAuth</span>: (accessToken: <span class="keyword">string</span>, csrfToken: <span class="keyword">string</span>, user: <span class="keyword">any</span>) => <span class="keyword">void</span>;
+  <span class="fn">clearAuth</span>: () => <span class="keyword">void</span>;
 }
 
-<span class="keyword">export const</span> useAuthStore = <span class="fn">create</span>&lt;AuthState&gt;((set) =&gt; ({
-  accessToken:  <span class="keyword">null</span>,
-  csrfToken:    <span class="keyword">null</span>,
-  user:         <span class="keyword">null</span>,
-  setTokens:    (accessToken, csrfToken, user) =&gt; set({ accessToken, csrfToken, user }),
-  clearTokens:  () =&gt; set({ accessToken: <span class="keyword">null</span>, csrfToken: <span class="keyword">null</span>, user: <span class="keyword">null</span> }),
-}));
+<span class="keyword">export const</span> useAuthStore = <span class="fn">create</span>&lt;AuthState&gt;((set) => ({
+  accessToken:     <span class="keyword">null</span>,
+  csrfToken:       <span class="keyword">null</span>,
+  user:            <span class="keyword">null</span>,
+  isAuthenticated: <span class="keyword">false</span>,
 
-<span class="comment">// login.ts — call this on form submit</span>
-<span class="keyword">export async function</span> <span class="fn">loginUser</span>(email: <span class="prop">string</span>, password: <span class="prop">string</span>) {
-  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="fn">fetch</span>(<span class="string">'/api/v1/auth/login'</span>, {
-    method:      <span class="string">'POST'</span>,
-    credentials: <span class="string">'include'</span>,   <span class="comment">// ← required so the rt cookie is received and stored</span>
-    headers:     { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
-    body:        <span class="fn">JSON.stringify</span>({ email, password }),
-  });
-  <span class="keyword">const</span> { data } = <span class="keyword">await</span> res.<span class="fn">json</span>();
-  <span class="comment">// Store ONLY in memory — never localStorage</span>
-  useAuthStore.<span class="fn">getState</span>().<span class="fn">setTokens</span>(data.accessToken, data.csrfToken, data.user);
+  <span class="fn">setAuth</span>: (accessToken, csrfToken, user) =>
+    <span class="fn">set</span>({ accessToken, csrfToken, user, isAuthenticated: <span class="keyword">true</span> }),
+
+  <span class="fn">clearAuth</span>: () =>
+    <span class="fn">set</span>({ accessToken: <span class="keyword">null</span>, csrfToken: <span class="keyword">null</span>, user: <span class="keyword">null</span>, isAuthenticated: <span class="keyword">false</span> }),
+}));</pre>
+
+  <h2>8.3 Login Page Integration</h2>
+  <pre><span class="comment">// src/pages/Login.tsx (simplified)</span>
+<span class="keyword">import</span> { useAuthStore } <span class="keyword">from</span> <span class="string">'../store/authStore'</span>;
+<span class="keyword">import</span> { apiClient }   <span class="keyword">from</span> <span class="string">'../api/apiClient'</span>;
+<span class="keyword">import</span> { useNavigate } <span class="keyword">from</span> <span class="string">'react-router-dom'</span>;
+
+<span class="keyword">export function</span> <span class="fn">LoginPage</span>() {
+  <span class="keyword">const</span> setAuth   = <span class="fn">useAuthStore</span>(s => s.setAuth);
+  <span class="keyword">const</span> navigate  = <span class="fn">useNavigate</span>();
+
+  <span class="keyword">async function</span> <span class="fn">handleLogin</span>(email: <span class="keyword">string</span>, password: <span class="keyword">string</span>) {
+    <span class="keyword">const</span> res = <span class="keyword">await</span> apiClient.<span class="fn">post</span>(<span class="string">'/auth/login'</span>, { email, password });
+    <span class="keyword">const</span> { accessToken, csrfToken, user } = res.data.data;
+
+    <span class="fn">setAuth</span>(accessToken, csrfToken, user);   <span class="comment">// store in memory</span>
+    <span class="comment">// rt cookie is set automatically by the browser — you don't touch it</span>
+
+    <span class="fn">navigate</span>(<span class="string">'/dashboard'</span>);
+  }
 }</pre>
 
-  <h2>
-    <span class="en">8.3 Axios Interceptor — Silent Token Refresh</span>
-    <span class="hi">8.3 Axios Interceptor — Silent Token Refresh</span>
-  </h2>
-<pre><span class="comment">// apiClient.ts</span>
+  <div class="callout tip">
+    <div class="callout-title">Important for Freshers</div>
+    <p class="en">Notice we never write <code>localStorage.setItem('token', ...)</code>. The <code>setAuth()</code> call stores in Zustand (JS memory). If the user refreshes the page, this state clears — but the rt cookie stays. The App component handles this via /auth/refresh on mount (see Section 8.6).</p>
+    <p class="hi"><code>localStorage.setItem('token', ...)</code> kabhi mat likho. <code>setAuth()</code> Zustand (JS memory) mein store karta hai. Page refresh pe ye clear hoga — but rt cookie rahegi. App component /auth/refresh call karega mount pe (Section 8.6 dekho).</p>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
+
+<!-- PAGE 12 · FRONTEND GUIDE PART 3 -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 8 · Frontend Guide (Axios + Interceptor)</span></div>
+
+  <h2>8.4 Axios Client + Silent Refresh Interceptor</h2>
+  <p class="en">This is the most important piece. The interceptor automatically:</p>
+  <p class="hi">Ye sabse important part hai. Interceptor automatically:</p>
+  <ul>
+    <li class="en">Attaches Authorization + x-csrf-token headers to every request</li>
+    <li class="hi">Har request pe Authorization + x-csrf-token header attach karta hai</li>
+    <li class="en">Detects 401 "Token has expired" → calls /auth/refresh → retries the original request</li>
+    <li class="hi">401 "Token has expired" detect karta hai → /auth/refresh call karta hai → original request retry karta hai</li>
+    <li class="en">If refresh fails → clears auth state → redirects to login</li>
+    <li class="hi">Refresh fail ho toh → auth state clear karta hai → login page pe bhejta hai</li>
+  </ul>
+  <pre><span class="comment">// src/api/apiClient.ts</span>
 <span class="keyword">import</span> axios <span class="keyword">from</span> <span class="string">'axios'</span>;
-<span class="keyword">import</span> { useAuthStore } <span class="keyword">from</span> <span class="string">'./authStore'</span>;
+<span class="keyword">import</span> { useAuthStore } <span class="keyword">from</span> <span class="string">'../store/authStore'</span>;
 
-<span class="keyword">const</span> api = axios.<span class="fn">create</span>({ baseURL: <span class="string">'/api/v1'</span>, withCredentials: <span class="keyword">true</span> }); <span class="comment">// withCredentials sends the rt cookie</span>
+<span class="keyword">const</span> BASE_URL = <span class="string">'https://api.succesly.in/api/v1'</span>;
 
-<span class="comment">// Attach access token + CSRF token before every request</span>
-api.interceptors.request.<span class="fn">use</span>((config) =&gt; {
+<span class="keyword">export const</span> apiClient = axios.<span class="fn">create</span>({
+  baseURL:         BASE_URL,
+  withCredentials: <span class="keyword">true</span>,   <span class="comment">// CRITICAL — sends rt cookie cross-origin</span>
+});
+
+<span class="comment">// REQUEST: attach tokens to every outgoing request</span>
+apiClient.interceptors.request.<span class="fn">use</span>((config) => {
   <span class="keyword">const</span> { accessToken, csrfToken } = useAuthStore.<span class="fn">getState</span>();
-  <span class="keyword">if</span> (accessToken) config.headers[<span class="string">'Authorization'</span>] = <span class="string">`Bearer ${accessToken}`</span>;
-  <span class="keyword">const</span> method = config.method?.toUpperCase();
-  <span class="keyword">if</span> (csrfToken &amp;&amp; [<span class="string">'POST'</span>,<span class="string">'PUT'</span>,<span class="string">'PATCH'</span>,<span class="string">'DELETE'</span>].<span class="fn">includes</span>(method ?? <span class="string">''</span>))
+  <span class="keyword">if</span> (accessToken) {
+    config.headers[<span class="string">'Authorization'</span>] = <span class="string">`Bearer <span class="keyword">${accessToken}</span>`</span>;
+  }
+  <span class="keyword">if</span> (csrfToken &amp;&amp; [<span class="string">'post'</span>,<span class="string">'put'</span>,<span class="string">'patch'</span>,<span class="string">'delete'</span>].<span class="fn">includes</span>(config.method!)) {
     config.headers[<span class="string">'x-csrf-token'</span>] = csrfToken;
+  }
   <span class="keyword">return</span> config;
 });
 
 <span class="keyword">let</span> isRefreshing = <span class="keyword">false</span>;
-<span class="keyword">let</span> refreshQueue: Array&lt;(token: <span class="prop">string</span>, csrf: <span class="prop">string</span>) =&gt; <span class="prop">void</span>&gt; = [];
+<span class="keyword">let</span> waitQueue: <span class="keyword">Array</span>&lt;(token: <span class="keyword">string</span>) => <span class="keyword">void</span>&gt; = [];
 
-<span class="comment">// Handle 401 — silently refresh and retry</span>
-api.interceptors.response.<span class="fn">use</span>(
-  (res) =&gt; res,
-  <span class="keyword">async</span> (error) =&gt; {
+<span class="comment">// RESPONSE: catch 401 → refresh → retry</span>
+apiClient.interceptors.response.<span class="fn">use</span>(
+  (res) => res,
+  <span class="keyword">async</span> (error) => {
     <span class="keyword">const</span> original = error.config;
-    <span class="keyword">if</span> (error?.response?.status !== <span class="num">401</span> || original._retry) <span class="keyword">return</span> Promise.<span class="fn">reject</span>(error);
+    <span class="keyword">if</span> (error.response?.status !== <span class="num">401</span> || original._retry) <span class="keyword">return</span> Promise.<span class="fn">reject</span>(error);
+
     original._retry = <span class="keyword">true</span>;
 
     <span class="keyword">if</span> (isRefreshing) {
-      <span class="keyword">return new</span> <span class="fn">Promise</span>((resolve) =&gt; {
-        refreshQueue.<span class="fn">push</span>((token, csrf) =&gt; {
-          original.headers[<span class="string">'Authorization'</span>] = <span class="string">`Bearer ${token}`</span>;
-          original.headers[<span class="string">'x-csrf-token'</span>]    = csrf;
-          <span class="fn">resolve</span>(api(original));
+      <span class="keyword">return new</span> <span class="fn">Promise</span>((resolve) => {
+        waitQueue.<span class="fn">push</span>((token) => {
+          original.headers[<span class="string">'Authorization'</span>] = <span class="string">`Bearer <span class="keyword">${token}</span>`</span>;
+          <span class="fn">resolve</span>(apiClient(original));
         });
       });
     }
+
     isRefreshing = <span class="keyword">true</span>;
     <span class="keyword">try</span> {
-      <span class="comment">// rt cookie is sent automatically — no body needed</span>
-      <span class="keyword">const</span> { data } = <span class="keyword">await</span> axios.<span class="fn">post</span>(<span class="string">'/api/v1/auth/refresh'</span>, {}, { withCredentials: <span class="keyword">true</span> });
+      <span class="keyword">const</span> { data } = <span class="keyword">await</span> apiClient.<span class="fn">post</span>(<span class="string">'/auth/refresh'</span>);
       <span class="keyword">const</span> { accessToken, csrfToken } = data.data;
-      useAuthStore.<span class="fn">getState</span>().<span class="fn">setTokens</span>(accessToken, csrfToken, useAuthStore.<span class="fn">getState</span>().user);
-      refreshQueue.<span class="fn">forEach</span>((cb) =&gt; <span class="fn">cb</span>(accessToken, csrfToken));
-      refreshQueue = [];
-      <span class="keyword">return</span> <span class="fn">api</span>(original);
+      useAuthStore.<span class="fn">getState</span>().<span class="fn">setAuth</span>(accessToken, csrfToken, useAuthStore.<span class="fn">getState</span>().user!);
+      waitQueue.<span class="fn">forEach</span>((cb) => <span class="fn">cb</span>(accessToken));
+      waitQueue = [];
+      original.headers[<span class="string">'Authorization'</span>] = <span class="string">`Bearer <span class="keyword">${accessToken}</span>`</span>;
+      <span class="keyword">return</span> <span class="fn">apiClient</span>(original);
     } <span class="keyword">catch</span> {
-      useAuthStore.<span class="fn">getState</span>().<span class="fn">clearTokens</span>();
-      window.location.href = <span class="string">'/login'</span>; <span class="comment">// session fully expired</span>
-    } <span class="keyword">finally</span> { isRefreshing = <span class="keyword">false</span>; }
+      useAuthStore.<span class="fn">getState</span>().<span class="fn">clearAuth</span>();
+      window.location.href = <span class="string">'/login'</span>;
+      <span class="keyword">return</span> Promise.<span class="fn">reject</span>(error);
+    } <span class="keyword">finally</span> {
+      isRefreshing = <span class="keyword">false</span>;
+    }
   }
 );</pre>
+  <div class="callout warn">
+    <div class="callout-title">Why withCredentials: true?</div>
+    <p class="en">Without this, the browser won't send the <code>rt</code> cookie on cross-origin requests to api.succesly.in. This MUST be set on the axios instance. The backend's CORS also has <code>credentials: true</code> to match.</p>
+    <p class="hi">Iske bina browser <code>rt</code> cookie cross-origin requests pe send nahi karega. Ye axios instance pe MUST set hona chahiye. Backend ka CORS bhi <code>credentials: true</code> set hai.</p>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
 
-  <h2>
-    <span class="en">8.4 Protected Route Guard (React Router)</span>
-    <span class="hi">8.4 Protected Route Guard (React Router)</span>
-  </h2>
-<pre><span class="comment">// ProtectedRoute.tsx</span>
-<span class="keyword">import</span> { useEffect, useState } <span class="keyword">from</span> <span class="string">'react'</span>;
-<span class="keyword">import</span> { Navigate } <span class="keyword">from</span> <span class="string">'react-router-dom'</span>;
-<span class="keyword">import</span> { useAuthStore } <span class="keyword">from</span> <span class="string">'./authStore'</span>;
-<span class="keyword">import</span> api <span class="keyword">from</span> <span class="string">'./apiClient'</span>;
+<!-- PAGE 13 · FRONTEND GUIDE PART 4 -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 8 · Frontend Guide (Protected Routes + App Load)</span></div>
 
-<span class="keyword">export function</span> <span class="fn">ProtectedRoute</span>({ children }) {
-  <span class="keyword">const</span> { accessToken, setTokens } = <span class="fn">useAuthStore</span>();
-  <span class="keyword">const</span> [loading, setLoading] = <span class="fn">useState</span>(!accessToken);
+  <h2>8.5 Protected Route Guard</h2>
+  <pre><span class="comment">// src/components/ProtectedRoute.tsx</span>
+<span class="keyword">import</span> { Navigate, Outlet } <span class="keyword">from</span> <span class="string">'react-router-dom'</span>;
+<span class="keyword">import</span> { useAuthStore }    <span class="keyword">from</span> <span class="string">'../store/authStore'</span>;
 
-  <span class="fn">useEffect</span>(() =&gt; {
-    <span class="comment">// On page refresh: access token is gone from memory — try silent refresh first</span>
-    <span class="keyword">if</span> (!accessToken) {
-      axios.<span class="fn">post</span>(<span class="string">'/api/v1/auth/refresh'</span>, {}, { withCredentials: <span class="keyword">true</span> })
-        .<span class="fn">then</span>(({ data }) =&gt; <span class="fn">setTokens</span>(data.data.accessToken, data.data.csrfToken, data.data.user))
-        .<span class="fn">catch</span>(() =&gt; {}) <span class="comment">// will redirect via the isAuthenticated check below</span>
-        .<span class="fn">finally</span>(() =&gt; <span class="fn">setLoading</span>(<span class="keyword">false</span>));
+<span class="keyword">export function</span> <span class="fn">ProtectedRoute</span>() {
+  <span class="keyword">const</span> isAuthenticated = <span class="fn">useAuthStore</span>(s => s.isAuthenticated);
+  <span class="keyword">const</span> isLoading       = <span class="fn">useAuthStore</span>(s => s.isLoading);   <span class="comment">// add this flag</span>
+
+  <span class="keyword">if</span> (isLoading) <span class="keyword">return</span> &lt;div&gt;Loading...&lt;/div&gt;;  <span class="comment">// wait for App to try refresh</span>
+  <span class="keyword">if</span> (!isAuthenticated) <span class="keyword">return</span> &lt;Navigate to=<span class="string">"/login"</span> replace /&gt;;
+  <span class="keyword">return</span> &lt;Outlet /&gt;;
+}
+
+<span class="comment">// src/App.tsx — Router setup</span>
+&lt;Routes&gt;
+  &lt;Route path=<span class="string">"/login"</span>  element={&lt;LoginPage /&gt;} /&gt;
+  &lt;Route element={&lt;ProtectedRoute /&gt;}&gt;
+    &lt;Route path=<span class="string">"/dashboard"</span> element={&lt;Dashboard /&gt;} /&gt;
+    &lt;Route path=<span class="string">"/users"</span>     element={&lt;UsersPage /&gt;} /&gt;
+    <span class="comment">/* all protected pages go here */</span>
+  &lt;/Route&gt;
+&lt;/Routes&gt;</pre>
+
+  <h2>8.6 App Load / Page Refresh Handling</h2>
+  <p class="en">When the user refreshes the page, JS memory clears but the <code>rt</code> cookie remains. Call <code>/auth/refresh</code> on app startup to silently restore the session:</p>
+  <p class="hi">Page refresh pe JS memory clear hoti hai lekin <code>rt</code> cookie rahti hai. App startup pe <code>/auth/refresh</code> call karo session restore karne ke liye:</p>
+  <pre><span class="comment">// src/App.tsx</span>
+<span class="keyword">import</span> { useEffect } <span class="keyword">from</span> <span class="string">'react'</span>;
+<span class="keyword">import</span> { useAuthStore } <span class="keyword">from</span> <span class="string">'./store/authStore'</span>;
+<span class="keyword">import</span> { apiClient }   <span class="keyword">from</span> <span class="string">'./api/apiClient'</span>;
+
+<span class="keyword">function</span> <span class="fn">App</span>() {
+  <span class="keyword">const</span> { setAuth, clearAuth, setLoading } = <span class="fn">useAuthStore</span>();
+
+  <span class="fn">useEffect</span>(() => {
+    <span class="keyword">async function</span> <span class="fn">tryRestoreSession</span>() {
+      <span class="fn">setLoading</span>(<span class="keyword">true</span>);
+      <span class="keyword">try</span> {
+        <span class="keyword">const</span> { data } = <span class="keyword">await</span> apiClient.<span class="fn">post</span>(<span class="string">'/auth/refresh'</span>);
+        <span class="keyword">const</span> { accessToken, csrfToken } = data.data;
+        <span class="comment">// Get user info after refresh</span>
+        <span class="keyword">const</span> profileRes = <span class="keyword">await</span> apiClient.<span class="fn">get</span>(<span class="string">'/auth/profile'</span>, {
+          headers: { <span class="string">'Authorization'</span>: <span class="string">`Bearer <span class="keyword">${accessToken}</span>`</span> }
+        });
+        <span class="fn">setAuth</span>(accessToken, csrfToken, profileRes.data.data);
+      } <span class="keyword">catch</span> {
+        <span class="fn">clearAuth</span>();   <span class="comment">// no valid session → user must login</span>
+      } <span class="keyword">finally</span> {
+        <span class="fn">setLoading</span>(<span class="keyword">false</span>);
+      }
     }
+    <span class="fn">tryRestoreSession</span>();
   }, []);
 
-  <span class="keyword">if</span> (loading) <span class="keyword">return</span> &lt;div&gt;Checking session...&lt;/div&gt;;
-  <span class="keyword">if</span> (!accessToken) <span class="keyword">return</span> &lt;Navigate to=<span class="string">"/login"</span> replace /&gt;;
-  <span class="keyword">return</span> children;
+  <span class="keyword">return</span> &lt;Router&gt;...&lt;/Router&gt;;
 }</pre>
 
-  <div class="callout warn">
-    <div class="callout-title">
-      <span class="en">Critical — NEVER guard routes by checking a cookie value</span>
-      <span class="hi">Critical — Cookie value check karke route guard mat karo</span>
-    </div>
-    <p class="en">The old vulnerability was exactly this. If you check <code>document.cookie.includes('t=')</code> or any cookie value to show/hide the dashboard, it defeats the entire security system. Route guards MUST call a real API endpoint and check the response.</p>
-    <p class="hi">Purani vulnerability yahi thi. Agar <code>document.cookie.includes('t=')</code> check karke dashboard show karte ho, toh poora security system bekaar hai. Route guard ko real API call karni chahiye aur response check karna chahiye.</p>
-  </div>
-
-  <h2>
-    <span class="en">8.5 Logout Flow</span>
-    <span class="hi">8.5 Logout Flow</span>
-  </h2>
-<pre><span class="comment">// logout.ts</span>
-<span class="keyword">export async function</span> <span class="fn">logoutUser</span>() {
+  <h2>8.7 Logout</h2>
+  <pre><span class="comment">// src/store/authStore.ts — add logout action</span>
+<span class="keyword">async function</span> <span class="fn">logout</span>() {
   <span class="keyword">try</span> {
-    <span class="comment">// POST with auth + CSRF headers (interceptor adds them automatically)</span>
-    <span class="keyword">await</span> api.<span class="fn">post</span>(<span class="string">'/auth/logout'</span>);
-  } <span class="keyword">finally</span> {
-    <span class="comment">// Always clear in-memory tokens even if the API call fails</span>
-    useAuthStore.<span class="fn">getState</span>().<span class="fn">clearTokens</span>();
+    <span class="keyword">await</span> apiClient.<span class="fn">post</span>(<span class="string">'/auth/logout'</span>);
+    <span class="comment">// x-csrf-token header is attached automatically by the request interceptor</span>
+    <span class="comment">// rt cookie is cleared by the server in the response</span>
+  } <span class="keyword">catch</span> { <span class="comment">/* log error */</span> }
+  <span class="keyword">finally</span> {
+    useAuthStore.<span class="fn">getState</span>().<span class="fn">clearAuth</span>();
     window.location.href = <span class="string">'/login'</span>;
   }
 }</pre>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ PAGE 11 · FRONTEND PROMPT -->
+<!-- PAGE 14 · FRONTEND DO's AND DON'TS -->
 <div class="page">
-  <div class="page-header"><span>Secure Auth v2.0</span><span>Section 9 · Copy-Paste Frontend Prompt</span></div>
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 8 · Frontend Do's &amp; Don'ts</span></div>
 
-  <h1>
-    <span class="en">9. Copy-Paste Prompt for Frontend Developer / AI Agent</span>
-    <span class="hi">9. Frontend Developer ya AI Agent ke liye Ready Prompt</span>
-  </h1>
-
-  <p class="en">Copy the entire block below and paste it as the initial context when briefing a frontend developer or an AI coding assistant.</p>
-  <p class="hi">Neeche ka poora block copy karo aur frontend developer ya AI coding assistant ko brief karte time paste karo.</p>
-
-  <div style="background:#0d1117; color:#c9d1d9; padding:20px 24px; border-radius:8px; font-family:'Courier New',monospace; font-size:11.5px; line-height:1.7; margin:16px 0; white-space:pre-wrap;">
-<span style="color:#ff7b72"># CONTEXT: Secure Auth System v2.0 — Backend Contract</span>
-
-I have a Node.js + Express backend with a JWT + CSRF + Server-side Session auth system.
-Implement the following EXACTLY in the frontend (React / Vue / Angular — your choice of
-framework, but follow all rules below).
-
-<span style="color:#ff7b72">## THE THREE TOKENS</span>
-
-1. accessToken  — JWT, 15-min lifetime, returned in LOGIN and REFRESH response BODY
-2. csrfToken    — Random 64-char hex, returned in LOGIN and REFRESH response BODY
-3. rt (cookie)  — HTTP-only SameSite=Strict cookie, managed by the browser automatically
-
-<span style="color:#ff7b72">## STORAGE RULES (MANDATORY — NO EXCEPTIONS)</span>
-
-✅ Store accessToken and csrfToken in JavaScript memory ONLY (React state / Zustand / Pinia)
-✅ Never put accessToken or csrfToken in localStorage, sessionStorage, or any cookie
-✅ Never check document.cookie to decide if a user is authenticated
-✅ The rt cookie is managed by the browser — you cannot and must not touch it from JS
-
-<span style="color:#ff7b72">## API ENDPOINTS</span>
-
-POST /api/v1/auth/login
-  Body: { email, password }
-  options: credentials: 'include'  ← REQUIRED so the browser stores the rt cookie
-  Response: { data: { accessToken, csrfToken, user: { user_id, email, role_id } } }
-  On success: store accessToken and csrfToken in memory
-
-POST /api/v1/auth/refresh
-  Body: {} (empty — the rt cookie is sent automatically by the browser)
-  options: credentials: 'include'
-  Response: { data: { accessToken, csrfToken } }
-  On success: update stored accessToken and csrfToken in memory
-
-POST /api/v1/auth/logout
-  Headers: Authorization: Bearer &lt;accessToken&gt;, x-csrf-token: &lt;csrfToken&gt;
-  options: credentials: 'include'
-  On success / fail: clear memory tokens, redirect to /login
-
-GET /api/v1/auth/profile
-  Headers: Authorization: Bearer &lt;accessToken&gt;
-  Returns: full user profile with role
-
-<span style="color:#ff7b72">## REQUIRED HEADERS ON EVERY REQUEST</span>
-
-All protected requests:
-  Authorization: Bearer &lt;accessToken&gt;
-
-All state-changing requests (POST, PUT, PATCH, DELETE):
-  x-csrf-token: &lt;csrfToken&gt;
-
-<span style="color:#ff7b72">## SILENT REFRESH (MANDATORY)</span>
-
-When any API returns 401:
-1. Call POST /api/v1/auth/refresh (with credentials: include)
-2. If refresh succeeds: update tokens in memory, retry the original failed request
-3. If refresh also returns 401: clear tokens from memory, redirect user to /login
-Queue all in-flight requests during refresh so they don't all fail simultaneously.
-
-<span style="color:#ff7b72">## ROUTE GUARDS (MANDATORY)</span>
-
-Protected routes MUST:
-1. Check if accessToken exists in memory
-2. If NOT: call POST /api/v1/auth/refresh to silently re-authenticate (page refresh case)
-3. If refresh fails: redirect to /login
-4. NEVER check a cookie value to decide if the user is authenticated
-5. Show a loading state while the refresh is in progress
-
-<span style="color:#ff7b72">## ON APP LOAD (page refresh or new tab)</span>
-
-Access token is gone from memory after a page refresh.
-On app mount: immediately call POST /api/v1/auth/refresh
-  If success → user is logged in → proceed
-  If fail    → user is logged out → show login page
-
-<span style="color:#ff7b72">## ERROR RESPONSES TO HANDLE</span>
-
-401 "Token has expired"        → trigger silent refresh
-401 "Session has expired..."   → clear tokens, go to login
-401 "Invalid token"            → clear tokens, go to login
-403 "CSRF token required"      → check that csrfToken is in memory and being sent
-403 "Invalid CSRF token"       → trigger refresh (new csrfToken will be issued)
+  <h2>8.8 Do's and Don'ts for Freshers</h2>
+  <div class="do-dont">
+    <div class="do-box">
+      <h4>✅ DO These</h4>
+      <ul>
+        <li>Store accessToken and csrfToken in Zustand (JS memory only)</li>
+        <li>Always set <code>withCredentials: true</code> on your axios instance</li>
+        <li>Call <code>/auth/refresh</code> on every app startup (page load)</li>
+        <li>Send <code>x-csrf-token</code> header on all POST, PUT, PATCH, DELETE requests</li>
+        <li>Use the response interceptor pattern to silently refresh on 401</li>
+        <li>Show a loading screen while checking session on startup</li>
+        <li>Call <code>/auth/logout</code> before clearing local state (server must invalidate)</li>
+        <li>Handle 403 from CSRF separately — usually means csrfToken is stale (call refresh)</li>
+      </ul>
+    </div>
+    <div class="dont-box">
+      <h4>❌ NEVER DO These</h4>
+      <ul>
+        <li>localStorage.setItem('accessToken', ...) — XSS vulnerability</li>
+        <li>document.cookie = 'rt=...' — HTTP-only cookies can't be set from JS</li>
+        <li>Decode the JWT with atob() to get user info — use /auth/profile or store user from login response</li>
+        <li>Check for cookie existence to decide if user is logged in — check Zustand isAuthenticated</li>
+        <li>Call /auth/refresh in a loop on failure — check isRefreshing flag first</li>
+        <li>Forget withCredentials on the base axios instance — the rt cookie won't be sent</li>
+        <li>Store the refresh token anywhere in JS — you literally can't (HTTP-only)</li>
+        <li>Skip the CSRF header on any mutation — you'll get 403 on every write request</li>
+      </ul>
+    </div>
   </div>
 
-  <div class="callout tip">
-    <div class="callout-title">
-      <span class="en">Tip — Testing the Integration</span>
-      <span class="hi">Tip — Integration Test Kaise Karo</span>
+  <h2>Quick Checklist — Before Shipping Frontend</h2>
+  <ul class="checklist">
+    <li>Axios instance has <code>withCredentials: true</code> and <code>baseURL = 'https://api.succesly.in/api/v1'</code></li>
+    <li>Request interceptor attaches <code>Authorization: Bearer &lt;accessToken&gt;</code> to every request</li>
+    <li>Request interceptor attaches <code>x-csrf-token: &lt;csrfToken&gt;</code> to POST/PUT/PATCH/DELETE</li>
+    <li>Response interceptor handles 401 → calls /auth/refresh → retries failed request</li>
+    <li>App.tsx calls <code>/auth/refresh</code> on mount to restore session after page refresh</li>
+    <li>ProtectedRoute shows loading state while session is being checked</li>
+    <li>Login stores <code>{ accessToken, csrfToken, user }</code> in Zustand, navigates to dashboard</li>
+    <li>Logout calls <code>/auth/logout</code> API, then clears Zustand state, then redirects to /login</li>
+    <li>No tokens stored in localStorage, sessionStorage, or readable cookies</li>
+    <li>Tested on localhost:5173 → api.succesly.in (cross-origin): login sets rt cookie, refresh sends rt cookie</li>
+  </ul>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
+
+<!-- PAGE 15 · MERITS & DEMERITS -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 9 · Merits &amp; Demerits</span></div>
+  <h1>
+    <span class="en">9. Merits &amp; Demerits — Honest Assessment</span>
+    <span class="hi">9. Fayde aur Nuksan — Sachchi Baat</span>
+  </h1>
+  <p class="en"><em>This is a genuine assessment, not marketing. Every system has tradeoffs.</em></p>
+  <p class="hi"><em>Ye honest assessment hai, koi marketing nahi. Har system mein tradeoffs hote hain.</em></p>
+
+  <div class="merit-grid">
+    <div class="merit-card">
+      <div class="mc-head green">Merits (What's Good)</div>
+      <div class="mc-body">
+        <ul>
+          <li><strong>Cookie theft is impossible:</strong> Refresh token is in an HTTP-only cookie. JavaScript — including malicious extensions — cannot read it under any circumstances.</li>
+          <li><strong>Cookie forgery is impossible:</strong> A manually-set fake cookie has no matching server-side session. The backend rejects it at Step 2 of auth middleware.</li>
+          <li><strong>Instant logout works:</strong> Logout sets is_valid=false in DB. Old access tokens are rejected within milliseconds, not 15 minutes.</li>
+          <li><strong>CSRF protection is real:</strong> Uses crypto.timingSafeEqual — immune to timing attacks. Token is in memory, not a cookie, so forged cross-site requests can never include it.</li>
+          <li><strong>Refresh token rotation:</strong> Each refresh call creates a new session and invalidates the old one. A stolen refresh token can only be used once.</li>
+          <li><strong>Clean architecture:</strong> Auth logic separated into controller → use-case → repository layers. Easy to test or swap storage layer.</li>
+          <li><strong>Per-request cookie options:</strong> Works correctly on both HTTP (local dev) and HTTPS (production) without changing environment variables.</li>
+          <li><strong>TTL index cleanup:</strong> MongoDB auto-deletes expired sessions. No manual cron job needed.</li>
+        </ul>
+      </div>
     </div>
-    <ul>
-      <li class="en">Open DevTools → Application → Cookies. You should see only the <code>rt</code> cookie. It should show <strong>HttpOnly: ✓</strong>. You should NOT be able to read its value with <code>document.cookie</code>.</li>
-      <li class="en">Open DevTools → Network. On a POST request, confirm <code>x-csrf-token</code> is in the request headers.</li>
-      <li class="en">Try manually adding any cookie in DevTools. Confirm the dashboard still does NOT load without a valid API response.</li>
-      <li class="en">Try copying the <code>rt</code> cookie value from DevTools. You will see it is not readable (blank value in the Value column) because it is HTTP-only.</li>
-      <li class="hi">DevTools → Application → Cookies mein sirf <code>rt</code> cookie honi chahiye — <strong>HttpOnly: ✓</strong>. <code>document.cookie</code> se blank aana chahiye.</li>
-      <li class="hi">DevTools → Network mein POST request pe <code>x-csrf-token</code> header confirm karo.</li>
-      <li class="hi">Manually koi cookie add karo DevTools mein — dashboard load nahi hona chahiye bina valid API response ke.</li>
-    </ul>
+    <div class="merit-card">
+      <div class="mc-head red">Demerits (Honest Gaps)</div>
+      <div class="mc-body">
+        <ul>
+          <li><strong>2–3 DB queries per request:</strong> Step 2 queries sessions collection, Step 3 queries users collection. At high traffic (1000 req/s), MongoDB becomes the bottleneck. No caching.</li>
+          <li><strong>Single session only:</strong> There is no per-device session management. User can't see "logged in on 3 devices" or selectively logout from one device.</li>
+          <li><strong>No rate limiting:</strong> /auth/login and /auth/refresh have no rate limiting. A bot can try 10,000 password combinations. This is a real gap.</li>
+          <li><strong>No refresh token reuse detection:</strong> If an attacker gets the refresh token and uses it before the real user, the real user's refresh will fail — but there's no alert or suspicious activity log.</li>
+          <li><strong>Access token can't be revoked before 15 min:</strong> On logout, the session is invalidated (which blocks the token via DB check), but if Step 2 is ever skipped accidentally, old access tokens work for 15 minutes.</li>
+          <li><strong>No 2FA support:</strong> Password-only authentication. A compromised password = compromised account.</li>
+          <li><strong>HS256 JWT:</strong> Symmetric signing means the same key signs and verifies. If the key leaks, any service can forge tokens. RS256 (asymmetric) is better for microservices.</li>
+          <li><strong>No audit log:</strong> No record of login attempts, IP changes, or suspicious activity.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
+
+<!-- PAGE 16 · ENTERPRISE & SCALABILITY -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 10 · Enterprise &amp; Scalability</span></div>
+  <h1>
+    <span class="en">10. Enterprise-Level &amp; Scalability Assessment</span>
+    <span class="hi">10. Enterprise Level hai ya nahi — Sachchi Analysis</span>
+  </h1>
+
+  <h2>Is This Enterprise-Level?</h2>
+  <p class="en"><strong>Honest answer: Partially yes, partially no.</strong> It's significantly better than most small-team backends and it solves the real security problems correctly. But true enterprise auth (think: Google, Stripe, GitHub) has more layers.</p>
+  <p class="hi"><strong>Honest jawab: Kuch haan, kuch nahi.</strong> Most small-team backends se bahut better hai aur real security problems sahi se solve kiye hain. Lekin true enterprise auth (Google, Stripe, GitHub jaise) mein aur layers hote hain.</p>
+
+  <table>
+    <tr><th>Feature</th><th>This System</th><th>True Enterprise</th></tr>
+    <tr><td>HTTP-only cookie for refresh token</td><td><span class="badge green">✓ Done</span></td><td><span class="badge green">✓ Standard</span></td></tr>
+    <tr><td>Server-side session validation</td><td><span class="badge green">✓ Done</span></td><td><span class="badge green">✓ Standard</span></td></tr>
+    <tr><td>CSRF protection</td><td><span class="badge green">✓ Done</span></td><td><span class="badge green">✓ Standard</span></td></tr>
+    <tr><td>Refresh token rotation</td><td><span class="badge green">✓ Done</span></td><td><span class="badge green">✓ Standard</span></td></tr>
+    <tr><td>Rate limiting on auth endpoints</td><td><span class="badge red">✗ Missing</span></td><td><span class="badge green">✓ Required</span></td></tr>
+    <tr><td>Session caching (Redis)</td><td><span class="badge red">✗ Missing</span></td><td><span class="badge green">✓ Required at scale</span></td></tr>
+    <tr><td>Multi-device session management</td><td><span class="badge red">✗ Missing</span></td><td><span class="badge green">✓ Common</span></td></tr>
+    <tr><td>2FA / MFA</td><td><span class="badge red">✗ Missing</span></td><td><span class="badge green">✓ Common</span></td></tr>
+    <tr><td>Reuse detection / token family</td><td><span class="badge red">✗ Missing</span></td><td><span class="badge orange">~ Optional</span></td></tr>
+    <tr><td>Audit log / anomaly detection</td><td><span class="badge red">✗ Missing</span></td><td><span class="badge green">✓ Required</span></td></tr>
+    <tr><td>RS256 JWT (asymmetric)</td><td><span class="badge orange">~ HS256</span></td><td><span class="badge green">✓ Preferred</span></td></tr>
+  </table>
+
+  <h2>Scalability Analysis</h2>
+  <p class="en"><strong>Current bottleneck: 2 DB reads per request.</strong> Every protected API call queries MongoDB twice (sessions + users). Here's what happens at different scales:</p>
+  <p class="hi"><strong>Current bottleneck: Har request pe 2 DB reads.</strong> Har protected API call MongoDB ko 2 baar query karta hai. Alag scales pe kya hoga:</p>
+
+  <div style="margin:16px 0;">
+    <p style="font-size:12px;font-weight:700;color:#0f3460;">0–500 concurrent users</p>
+    <div class="scale-bar"><div class="scale-fill green" style="width:90%"></div></div>
+    <p style="font-size:11px;color:#555;" class="en">No problem. MongoDB handles this easily. Current system is perfectly fine.</p>
+    <p style="font-size:11px;color:#555;" class="hi">Koi problem nahi. MongoDB easily handle karta hai. Current system bilkul theek hai.</p>
+
+    <p style="font-size:12px;font-weight:700;color:#0f3460;">500–5,000 concurrent users</p>
+    <div class="scale-bar"><div class="scale-fill orange" style="width:55%"></div></div>
+    <p style="font-size:11px;color:#555;" class="en">MongoDB starts showing latency. Session lookups add 5–15ms per request. Add indexes (already done on refresh_token_hash). Consider Redis for session caching.</p>
+    <p style="font-size:11px;color:#555;" class="hi">MongoDB latency dikhna shuru hogi. Session lookup 5-15ms add karti hai. Indexes hain already. Redis session caching ke baare mein socho.</p>
+
+    <p style="font-size:12px;font-weight:700;color:#0f3460;">5,000+ concurrent users</p>
+    <div class="scale-bar"><div class="scale-fill red" style="width:25%"></div></div>
+    <p style="font-size:11px;color:#555;" class="en">Redis is mandatory. MongoDB can't handle 10,000 session queries/second cost-effectively. Redis responds in &lt;1ms from memory.</p>
+    <p style="font-size:11px;color:#555;" class="hi">Redis mandatory hai. MongoDB 10,000 session queries/sec cost-effectively handle nahi kar sakta. Redis memory se &lt;1ms mein respond karta hai.</p>
   </div>
 
   <div class="callout info">
-    <div class="callout-title">
-      <span class="en">Branch &amp; Files Reference</span>
-      <span class="hi">Branch aur Files Reference</span>
-    </div>
-    <p class="en"><strong>Backend branch:</strong> <code>nikhil-dev-secure-csrf-branch</code></p>
-    <p class="hi"><strong>Backend branch:</strong> <code>nikhil-dev-secure-csrf-branch</code></p>
-    <p class="en"><strong>Key backend files:</strong></p>
-    <p class="hi"><strong>Key backend files:</strong></p>
-    <ul>
-      <li><code>src/use-cases/auth/auth.use-case.ts</code> — <span class="en">login / refresh / logout logic</span><span class="hi">login / refresh / logout logic</span></li>
-      <li><code>src/middlewares/auth.middleware.ts</code> — <span class="en">3-step JWT + session + user check</span><span class="hi">3-step JWT + session + user check</span></li>
-      <li><code>src/middlewares/csrf.middleware.ts</code> — <span class="en">CSRF token validation</span><span class="hi">CSRF token validation</span></li>
-      <li><code>src/controllers/auth.controller.ts</code> — <span class="en">HTTP layer — sets cookies, returns tokens</span><span class="hi">HTTP layer — cookies set karta hai, tokens return karta hai</span></li>
-      <li><code>src/frameworks/mongo/model/session.model.ts</code> — <span class="en">session DB schema</span><span class="hi">session DB schema</span></li>
-    </ul>
+    <div class="callout-title">Redis Migration Path (When Needed)</div>
+    <p class="en">Replace session storage: instead of MongoDB sessions collection, store sessions in Redis with <code>SET session:{id} {json} EX 604800</code> (7 days TTL). On auth middleware Step 2, do <code>redis.get('session:' + sessionId)</code> instead of <code>Session.findById()</code>. This is a drop-in replacement — no architectural change needed.</p>
+    <p class="hi">Sessions MongoDB se Redis pe move karo: <code>SET session:{id} {json} EX 604800</code>. Auth middleware Step 2 mein <code>Session.findById()</code> ki jagah <code>redis.get('session:' + sessionId)</code> karo. Drop-in replacement hai — architecture change nahi chahiye.</p>
   </div>
-
-  <div class="page-footer">Made by Nikhil Mahato (Software Development Engineer 1) · Secure Auth v2.0</div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════ SCRIPT -->
+<!-- PAGE 17 · FUTURE ROADMAP -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 11 · Future Roadmap</span></div>
+  <h1>
+    <span class="en">11. Future Roadmap</span>
+    <span class="hi">11. Aage Kya Karna Hai</span>
+  </h1>
+  <p class="en">Prioritized by impact. Items marked <span class="badge red">Security</span> should be added before significant user growth.</p>
+  <p class="hi">Impact ke hisaab se priority. <span class="badge red">Security</span> mark wale items user growth se pehle add karne chahiye.</p>
+
+  <div class="timeline">
+    <div class="timeline-item red">
+      <div class="tl-label">Priority 1 — Rate Limiting <span class="badge red">Security</span></div>
+      <div class="tl-body en">Add express-rate-limit on /auth/login (e.g. max 10 attempts per 15 min per IP) and /auth/refresh (max 30/min). Without this, a bot can run unlimited password-guessing attacks. 1 hour of work.</div>
+      <div class="tl-body hi">/auth/login pe rate limit lagao (10 attempts per 15 min per IP). Bina is ke bot unlimited password guessing kar sakta hai. 1 ghante ka kaam.</div>
+    </div>
+    <div class="timeline-item red">
+      <div class="tl-label">Priority 2 — Refresh Token Reuse Detection <span class="badge red">Security</span></div>
+      <div class="tl-body en">When a refresh token is used twice (stolen + reused), the second use should revoke ALL sessions for that user (token family invalidation). Currently the second use just fails — the attacker might already have a new valid session from the first use.</div>
+      <div class="tl-body hi">Agar refresh token 2 baar use ho (chori ke baad), toh us user ke SAARE sessions revoke kar do. Abhi second use fail hota hai lekin attacker pehli use se new session le chuka hoga.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-label">Priority 3 — Redis Session Store <span class="badge orange">Performance</span></div>
+      <div class="tl-body en">Replace MongoDB session lookup with Redis for auth middleware Step 2. Reduces per-request auth overhead from ~10ms to ~0.5ms. Required before scaling beyond 2,000 concurrent users.</div>
+      <div class="tl-body hi">Auth middleware Step 2 mein MongoDB ki jagah Redis. Per-request auth overhead 10ms se 0.5ms ho jaayega. 2,000 concurrent users se pehle zaroori hai.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-label">Priority 4 — Multi-Device Session Management <span class="badge blue">Feature</span></div>
+      <div class="tl-body en">Show user a list of active sessions (device, IP, last seen). Let them logout from specific devices. This requires storing device info per session (already partially done — user_agent and ip_address stored).</div>
+      <div class="tl-body hi">User ko active sessions ki list dikhaao (device, IP, last seen). Specific device se logout karne do. Device info already store ho raha hai (user_agent, ip_address).</div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-label">Priority 5 — Two-Factor Authentication <span class="badge purple">Security+</span></div>
+      <div class="tl-body en">Add TOTP (Google Authenticator) or email OTP as second factor on login. Login flow becomes: verify password → generate temp token → user verifies OTP → issue real access/refresh tokens. Session model needs an is_2fa_verified flag.</div>
+      <div class="tl-body hi">Login ke baad Google Authenticator ya email OTP se verify karo. Password verify → temp token → OTP verify → real tokens. Session model mein is_2fa_verified flag chahiye.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="tl-label">Priority 6 — RS256 JWT (Asymmetric Signing) <span class="badge blue">Architecture</span></div>
+      <div class="tl-body en">Replace HS256 (one shared secret) with RS256 (private key signs, public key verifies). Important if multiple services need to verify tokens — they only need the public key, not the secret. Low priority unless moving to microservices.</div>
+      <div class="tl-body hi">HS256 (shared secret) ko RS256 se replace karo (private key se sign, public key se verify). Multiple services ke liye useful — unhe sirf public key chahiye. Microservices nahi hain toh low priority.</div>
+    </div>
+    <div class="timeline-item green">
+      <div class="tl-label">Priority 7 — Audit Logging <span class="badge green">Compliance</span></div>
+      <div class="tl-body en">Log all auth events: login success/failure, refresh, logout, IP address, device, timestamp. Store in a separate audit_logs collection. Required for SOC2/compliance and for detecting account takeover attempts.</div>
+      <div class="tl-body hi">Sabhi auth events log karo: login, refresh, logout, IP, device, time. Alag audit_logs collection mein. SOC2/compliance ke liye zaroori.</div>
+    </div>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
+
+<!-- PAGE 18 · COPY-PASTE PROMPT -->
+<div class="page">
+  <div class="page-header"><span>Secure Auth v2.1</span><span>Section 12 · Copy-Paste Prompt</span></div>
+  <h1>
+    <span class="en">12. Copy-Paste Prompt for Frontend Developer</span>
+    <span class="hi">12. Frontend Dev ke liye Copy-Paste Prompt</span>
+  </h1>
+  <p class="en">Give this prompt to any AI assistant (Claude, ChatGPT, etc.) to get help implementing the frontend integration for this auth system.</p>
+  <p class="hi">Ye prompt kisi bhi AI assistant ko do — Claude, ChatGPT, etc. — frontend integration implement karne mein help milegi.</p>
+
+  <pre style="font-size:11px;white-space:pre-wrap;">I am building the frontend for a React + TypeScript + Vite app that connects to
+a REST API at https://api.succesly.in/api/v1.
+
+The backend uses a secure auth system with the following design:
+
+1. POST /auth/login returns { data: { accessToken, csrfToken, user } } in the
+   response body and sets an HTTP-only cookie named "rt" (refresh token).
+   The rt cookie is path-scoped to /api/v1/auth.
+
+2. POST /auth/refresh — no body needed. The browser automatically sends the rt
+   cookie. Returns { data: { accessToken, csrfToken } }.
+   Call this: (a) on app startup to restore session after page refresh,
+   (b) when any API call returns 401 with message "Token has expired".
+
+3. POST /auth/logout — requires Authorization: Bearer header AND x-csrf-token
+   header. Clears the rt cookie and invalidates the server-side session.
+
+4. All protected GET routes: Authorization: Bearer &lt;accessToken&gt; header only.
+   All protected POST/PUT/PATCH/DELETE routes: Both Authorization AND
+   x-csrf-token: &lt;csrfToken&gt; headers required.
+
+SECURITY RULES:
+- NEVER store accessToken or csrfToken in localStorage or any cookie.
+- Store them ONLY in a Zustand store (JavaScript memory).
+- The rt cookie is HTTP-only — you CANNOT read or write it from JavaScript.
+  The browser manages it automatically.
+- Always use withCredentials: true on your axios instance.
+
+Please implement:
+1. Zustand auth store (authStore.ts) with setAuth, clearAuth, isLoading state
+2. Axios instance with withCredentials: true and baseURL set
+3. Request interceptor: attach Authorization header always, attach x-csrf-token
+   on POST/PUT/PATCH/DELETE methods
+4. Response interceptor: on 401, call /auth/refresh, update tokens in store,
+   retry the failed request. On refresh failure, clearAuth and redirect to /login.
+   Use a queue to handle multiple concurrent 401s (isRefreshing flag + waitQueue).
+5. App.tsx: call /auth/refresh on mount (useEffect with empty deps) to restore
+   session. Show loading state while checking. Set isLoading=false in finally.
+6. ProtectedRoute component: show loading spinner while isLoading=true,
+   redirect to /login if isAuthenticated=false.
+7. Login page: call POST /auth/login, call setAuth with response data, navigate
+   to /dashboard.
+8. Logout function: call POST /auth/logout (interceptor adds headers), then
+   clearAuth(), then window.location.href = '/login'.
+
+Tech stack: React 18, TypeScript, Zustand, Axios, React Router v6, Vite.</pre>
+
+  <div class="callout tip">
+    <div class="callout-title">Additional Instructions for Frontend Dev</div>
+    <ul>
+      <li class="en">Test cross-origin: your localhost:5173 calling api.succesly.in. The rt cookie <strong>will</strong> be sent if <code>withCredentials: true</code> is set. If the browser shows a CORS error, check that your origin is in the backend's allowed list.</li>
+      <li class="hi">Cross-origin test karo: localhost:5173 se api.succesly.in. rt cookie <strong>bhejega</strong> agar <code>withCredentials: true</code> set hai. CORS error aaye toh backend whitelist mein origin add karwao.</li>
+      <li class="en">The Swagger docs are at <code>https://api.succesly.in/api-docs</code>. Login there first, then /auth/refresh works automatically in Swagger (withCredentials is enabled).</li>
+      <li class="hi">Swagger docs: <code>https://api.succesly.in/api-docs</code>. Pehle wahan login karo, phir /auth/refresh khud kaam karta hai.</li>
+      <li class="en">If you get a 403 on a mutation (POST/PUT/PATCH/DELETE), it means the x-csrf-token header is missing or wrong. Check your request interceptor is attaching it.</li>
+      <li class="hi">Mutation pe 403 aaye toh x-csrf-token header missing ya galat hai. Request interceptor check karo.</li>
+      <li class="en">If /auth/refresh returns 401 on your local machine, the rt cookie is not being sent. Check: (1) withCredentials:true set, (2) you called /auth/login first, (3) check Application → Cookies in Chrome DevTools to see if the rt cookie is there.</li>
+      <li class="hi">Local machine pe /auth/refresh 401 de toh rt cookie send nahi ho raha. Check karo: (1) withCredentials:true set hai, (2) /auth/login pehle call kiya, (3) Chrome DevTools → Application → Cookies mein rt cookie dikh raha hai kya.</li>
+    </ul>
+  </div>
+  <div class="page-footer">Made by Nikhil Mahato · Secure Auth v2.1 · May 2026</div>
+</div>
+
 <script>
 function setLang(lang) {
-  const enEls = document.querySelectorAll('.en');
-  const hiEls = document.querySelectorAll('.hi');
-  const btnEn = document.getElementById('btn-en');
-  const btnHi = document.getElementById('btn-hi');
-
-  if (lang === 'en') {
-    enEls.forEach(el => el.style.display = '');
-    hiEls.forEach(el => el.style.display = 'none');
-    btnEn.classList.add('active');
-    btnHi.classList.remove('active');
-  } else {
-    enEls.forEach(el => el.style.display = 'none');
-    hiEls.forEach(el => el.style.display = '');
-    btnHi.classList.add('active');
-    btnEn.classList.remove('active');
-  }
+  document.querySelectorAll('.en').forEach(el => el.style.display = lang === 'en' ? '' : 'none');
+  document.querySelectorAll('.hi').forEach(el => el.style.display = lang === 'hi' ? '' : 'none');
+  document.getElementById('btn-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+  document.getElementById('btn-hi').className = 'lang-btn' + (lang === 'hi' ? ' active' : '');
 }
-// Default: English
 setLang('en');
 </script>
-
 </body>
 </html>
