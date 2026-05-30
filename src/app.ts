@@ -22,6 +22,7 @@ app.use(helmet());
 // Restrict to known origins.  Add new domains here as needed.
 const allowedOrigins = [
   'http://localhost:5173',          // Vite dev server (local frontend)
+   'http://localhost:7000',
   'http://localhost:3000',          // Alternative dev port
   'https://succesly.in',            // Production domain
   'https://identity.zynkly.com',   // Identity service

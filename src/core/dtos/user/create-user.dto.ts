@@ -1,11 +1,12 @@
 import Joi from 'joi';
 
 export interface CreateUserDto {
-  username:  string;
-  email:     string;
-  mobile_no: string;
-  password:  string;
-  role_id:   string;
+  username:           string;
+  email:              string;
+  mobile_no:          string;
+  password:           string;
+  role_id:            string;
+  profile_image_url?: string;
 }
 
 export const createUserSchema = Joi.object<CreateUserDto>({
@@ -19,4 +20,6 @@ export const createUserSchema = Joi.object<CreateUserDto>({
                .messages({ 'any.required': 'password is required', 'string.min': 'password must be at least 8 characters' }),
   role_id:   Joi.string().trim().required()
                .messages({ 'any.required': 'role_id is required' }),
+  profile_image_url: Joi.string().trim().uri().optional().allow(null, '')
+               .messages({ 'string.uri': 'profile_image_url must be a valid URL' }),
 });

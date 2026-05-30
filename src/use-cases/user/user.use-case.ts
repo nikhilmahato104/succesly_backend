@@ -12,6 +12,15 @@ import {
 export class UserUseCase {
   constructor(private readonly dataServices: IDataServices) {}
 
+  // Strips password before returning a document from create/update (business rule: never expose it)
+  private sanitize(doc: unknown): Record<string, unknown> {
+    const obj = typeof (doc as { toObject?: () => unknown }).toObject === 'function'
+      ? (doc as { toObject: () => Record<string, unknown> }).toObject()
+      : { ...(doc as Record<string, unknown>) };
+    const { password: _omitted, ...rest } = obj;
+    return rest;
+  }
+
   /**
    * List users with optional search / filter / pagination.
    *
@@ -33,11 +42,12 @@ export class UserUseCase {
     if (query['role_id'])                 match['role_id']   = new Types.ObjectId(query['role_id']);
     if (query['search'])                  Object.assign(match, buildSearchFilter(query['search'], ['username', 'email']));
 
-    // Aggregation pipeline: filter → join role → strip password
+    // Aggregation pipeline: filter → join role → normalise optional fields → strip password
     const pipeline = [
       { $match: match },
       { $lookup: { from: 'roles', localField: 'role_id', foreignField: '_id', as: 'role' } },
       { $unwind: { path: '$role', preserveNullAndEmptyArrays: true } },
+      { $addFields: { profile_image_url: { $ifNull: ['$profile_image_url', null] } } },
       { $project: { password: 0 } },
     ];
 
@@ -54,6 +64,7 @@ export class UserUseCase {
       { $match: { _id: new Types.ObjectId(id) } },
       { $lookup: { from: 'roles', localField: 'role_id', foreignField: '_id', as: 'role' } },
       { $unwind: { path: '$role', preserveNullAndEmptyArrays: true } },
+      { $addFields: { profile_image_url: { $ifNull: ['$profile_image_url', null] } } },
       { $project: { password: 0 } },
     ]);
     if (!user) throw new AppError('User not found', 404);
@@ -68,11 +79,12 @@ export class UserUseCase {
     if (!role) throw new AppError('Role not found', 404);
 
     const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
-    return this.dataServices.users.create({
+    const created = await this.dataServices.users.create({
       ...dto,
       password: hashedPassword,
       role_id:  new Types.ObjectId(dto.role_id) as unknown as Types.ObjectId,
     });
+    return this.sanitize(created);
   }
 
   async updateUser(id: string, dto: UpdateUserDto) {
@@ -90,7 +102,9 @@ export class UserUseCase {
       update['role_id'] = new Types.ObjectId(dto.role_id);
     }
 
-    return this.dataServices.users.update(id, update);
+    const updated = await this.dataServices.users.update(id, update);
+    if (!updated) throw new AppError('User not found', 404);
+    return this.sanitize(updated);
   }
 
   async deleteUser(id: string) {

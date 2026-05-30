@@ -19,6 +19,8 @@ export const swaggerSpec = {
       '',
       '**Auth:** All protected routes require **both** a valid JWT (`Authorization: Bearer <token>`) and a valid API key (`x-api-key: <key>`).',
       '',
+      '**CSRF:** State-changing routes (POST / PATCH / DELETE) additionally require the `x-csrf-token` header. Get the token from the `csrf_token` field in the `POST /auth/login` response, then click **Authorize** and paste it into the `csrfToken` field.',
+      '',
       '**Swagger structure:** Each module owns its own `module.swagger.ts` file. Adding a new resource = add one file + spread below.',
     ].join('\n'),
   },
@@ -59,6 +61,12 @@ export const swaggerSpec = {
         in:          'header',
         name:        'x-api-key',
         description: 'API key created via POST /api-keys (stored in DB)',
+      },
+      csrfToken: {
+        type:        'apiKey',
+        in:          'header',
+        name:        'x-csrf-token',
+        description: 'CSRF token — copy the `csrf_token` value returned in the POST /auth/login response and paste it here. Required on all state-changing requests (POST, PATCH, DELETE).',
       },
       bootstrapApiKey: {
         type:        'apiKey',

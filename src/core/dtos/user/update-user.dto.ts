@@ -1,12 +1,13 @@
 import Joi from 'joi';
 
 export interface UpdateUserDto {
-  username?:  string;
-  email?:     string;
-  mobile_no?: string;
-  password?:  string;
-  role_id?:   string;
-  is_active?: boolean;
+  username?:           string;
+  email?:              string;
+  mobile_no?:          string;
+  password?:           string;
+  role_id?:            string;
+  is_active?:          boolean;
+  profile_image_url?:  string | null;
 }
 
 export const updateUserSchema = Joi.object<UpdateUserDto>({
@@ -19,4 +20,6 @@ export const updateUserSchema = Joi.object<UpdateUserDto>({
                .messages({ 'string.min': 'password must be at least 8 characters' }),
   role_id:   Joi.string().trim().optional(),
   is_active: Joi.boolean().optional(),
+  profile_image_url: Joi.string().trim().uri().optional().allow(null, '')
+               .messages({ 'string.uri': 'profile_image_url must be a valid URL' }),
 }).min(1).messages({ 'object.min': 'At least one field must be provided' });

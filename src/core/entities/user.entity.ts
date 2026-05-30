@@ -1,12 +1,13 @@
 import { Document, Types } from 'mongoose';
 
 export interface IUser {
-  username:  string;
-  email:     string;
-  mobile_no: string;
-  password:  string;   // bcrypt-hashed, never returned in API responses
-  role_id:   Types.ObjectId;
-  is_active: boolean;
+  username:           string;
+  email:              string;
+  mobile_no:          string;
+  password:           string;   // bcrypt-hashed, never returned in API responses
+  role_id:            Types.ObjectId;
+  is_active:          boolean;
+  profile_image_url?: string;
 }
 
 export interface IUserDocument extends IUser, Document {}
