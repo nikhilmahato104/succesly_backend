@@ -55,8 +55,8 @@ app.use(
 app.use(cookieParser());
 
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '2gb' }));
+app.use(express.urlencoded({ extended: true, limit: '2gb' }));
 
 // Swagger UI — interactive docs at /api-docs
 app.use(
