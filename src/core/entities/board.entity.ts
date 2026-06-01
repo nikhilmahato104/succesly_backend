@@ -7,6 +7,7 @@ export interface ICameraState {
 }
 
 export interface IBoard {
+  _id:         string;
   name:        string;
   slug:        string;
   thumbnail:   string | null;
@@ -17,6 +18,4 @@ export interface IBoard {
   deletedAt:   Date | null;
 }
 
-export interface IBoardDocument extends IBoard, Document {
-  _id: string; // nanoid — not ObjectId
-}
+export interface IBoardDocument extends IBoard, Document<string> {}
