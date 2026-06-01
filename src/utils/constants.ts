@@ -29,3 +29,20 @@ export const REFRESH_COOKIE_NAME = 'rt';
 
 /** Header name the client sends the CSRF token in */
 export const CSRF_HEADER = 'x-csrf-token';
+
+// ─── Board constants ─────────────────────────────────────────────────────────
+
+/** nanoid length used for Board._id */
+export const BOARD_ID_LENGTH = 21;
+
+/** Max canvas objects per board before the API returns 422 */
+export const BOARD_MAX_OBJECTS = 10_000;
+
+/** Max version snapshots kept per board in BoardHistory */
+export const BOARD_MAX_HISTORY = 20;
+
+/** Default page size for GET /boards list */
+export const BOARD_DEFAULT_LIMIT = 20;
+
+/** Hard cap on page size for GET /boards list */
+export const BOARD_MAX_LIMIT = 50;

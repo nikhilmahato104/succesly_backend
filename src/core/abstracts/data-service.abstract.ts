@@ -5,7 +5,9 @@ import { IModuleDocument }    from '../entities/module.entity';
 import { IRoleDocument }      from '../entities/role.entity';
 import { IUserDocument }      from '../entities/user.entity';
 import { IApiKeyDocument }    from '../entities/api-key.entity';
-import { IBookingDocument }   from '../entities/booking.entity';
+import { IBookingDocument }        from '../entities/booking.entity';
+import { IBoardDocument }          from '../entities/board.entity';
+import { IBoardHistoryDocument }   from '../entities/board-history.entity';
 
 export interface IDataServices {
   students: IGenericRepository<IStudentDocument>;
@@ -14,5 +16,7 @@ export interface IDataServices {
   roles:    IGenericRepository<IRoleDocument>;
   users:    IGenericRepository<IUserDocument>;
   apiKeys:  IGenericRepository<IApiKeyDocument>;
-  bookings: IGenericRepository<IBookingDocument>;
+  bookings:       IGenericRepository<IBookingDocument>;
+  boards:         IGenericRepository<IBoardDocument>;
+  boardHistories: IGenericRepository<IBoardHistoryDocument>;
 }

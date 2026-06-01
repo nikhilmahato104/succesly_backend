@@ -83,6 +83,10 @@ export class MongoGenericRepository<T> implements IGenericRepository<T> {
     return this._repository.findByIdAndDelete(id, { session } as never).exec() as Promise<T | null>;
   }
 
+  deleteMany(filter: object): Promise<unknown> {
+    return this._repository.deleteMany(filter as never);
+  }
+
   findUnique(data: object, session: unknown = null): Promise<T | null> {
     return this._repository
       .findOne(data as never, {}, { session } as never)

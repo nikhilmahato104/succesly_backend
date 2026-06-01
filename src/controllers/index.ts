@@ -5,3 +5,4 @@ export * from './role.controller';
 export * from './user.controller';
 export * from './auth.controller';
 export * from './api-key.controller';
+export * from './board.controller';

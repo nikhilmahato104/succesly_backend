@@ -6,6 +6,7 @@ import { userPaths,    userSchemas }     from '../routes/user/user.swagger';
 import { authPaths,    authSchemas }     from '../routes/auth/auth.swagger';
 import { apiKeyPaths,  apiKeySchemas }   from '../routes/api-key/api-key.swagger';
 import { bookingPaths, bookingSchemas }  from '../routes/booking/booking.swagger';
+import { boardPaths,   boardSchemas }    from '../routes/board/board.swagger';
 
 export const swaggerSpec = {
   openapi: '3.0.0',
@@ -37,6 +38,7 @@ export const swaggerSpec = {
     { name: 'Students',  description: 'Student management' },
     { name: 'Marks',     description: 'Subject-wise marks with student info via $lookup' },
     { name: 'Bookings',  description: 'Booking CRUD — auto-generated reference_id, conditional auth per route/field' },
+    { name: 'Boards',    description: 'FigJam-style whiteboard boards — open routes, no auth required' },
   ],
   paths: {
     ...authPaths,
@@ -47,6 +49,7 @@ export const swaggerSpec = {
     ...studentPaths,
     ...marksPaths,
     ...bookingPaths,
+    ...boardPaths,
   },
   components: {
     securitySchemes: {
@@ -84,6 +87,7 @@ export const swaggerSpec = {
       ...studentSchemas,
       ...marksSchemas,
       ...bookingSchemas,
+      ...boardSchemas,
       ApiError: {
         type: 'object',
         properties: {
