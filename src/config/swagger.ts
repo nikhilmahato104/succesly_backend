@@ -7,7 +7,8 @@ import { authPaths,    authSchemas }     from '../routes/auth/auth.swagger';
 import { apiKeyPaths,  apiKeySchemas }   from '../routes/api-key/api-key.swagger';
 import { bookingPaths, bookingSchemas }  from '../routes/booking/booking.swagger';
 import { boardPaths,   boardSchemas }    from '../routes/board/board.swagger';
-import { projectPaths, projectSchemas }  from '../routes/project/project.swagger';
+import { projectPaths,      projectSchemas }     from '../routes/project/project.swagger';
+import { activityLogPaths, activityLogSchemas }  from '../routes/activity-log/activity-log.swagger';
 
 export const swaggerSpec = {
   openapi: '3.0.0',
@@ -42,6 +43,7 @@ export const swaggerSpec = {
     { name: 'Boards',    description: 'FigJam-style whiteboard boards — open routes, no auth required' },
     { name: 'Projects',  description: 'Freelancer project management — clients, billing, payment terms, deployment info' },
     { name: 'Projects — Payment Terms', description: 'Add installment terms and mark individual payments as paid' },
+    { name: 'Activity Logs', description: 'Audit trail — who did what, when, on which record, with field-level diff and API metrics' },
   ],
   paths: {
     ...authPaths,
@@ -54,6 +56,7 @@ export const swaggerSpec = {
     ...bookingPaths,
     ...boardPaths,
     ...projectPaths,
+    ...activityLogPaths,
   },
   components: {
     securitySchemes: {
@@ -93,6 +96,7 @@ export const swaggerSpec = {
       ...bookingSchemas,
       ...boardSchemas,
       ...projectSchemas,
+      ...activityLogSchemas,
       ApiError: {
         type: 'object',
         properties: {

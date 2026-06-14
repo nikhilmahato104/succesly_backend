@@ -7,3 +7,4 @@ export * from './auth.controller';
 export * from './api-key.controller';
 export * from './board.controller';
 export * from './project.controller';
+export * from './activity-log.controller';

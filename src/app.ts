@@ -5,9 +5,9 @@ import morgan     from 'morgan';
 import cookieParser from 'cookie-parser';
 import swaggerUi  from 'swagger-ui-express';
 
-import { swaggerSpec }    from './config/swagger';
-import routes             from './routes';
-import { errorMiddleware } from './middlewares';
+import { swaggerSpec }        from './config/swagger';
+import routes                 from './routes';
+import { errorMiddleware, requestTimerMiddleware } from './middlewares';
 
 const app = express();
 
@@ -15,6 +15,9 @@ const app = express();
 // HTTPS connection rather than the internal HTTP hop from the proxy.
 // This is required for SameSite=None + Secure cookies to work correctly.
 app.set('trust proxy', 1);
+
+// Stamp every request with a start timestamp — used by controllers to compute response_time_ms
+app.use(requestTimerMiddleware);
 
 app.use(helmet());
 
