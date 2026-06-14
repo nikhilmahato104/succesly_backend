@@ -8,6 +8,7 @@ import authRoutes     from './auth';
 import apiKeyRoutes   from './api-key';
 import bookingRoutes  from './booking/booking.routes';
 import boardRoutes    from './board/board.routes';
+import projectRoutes  from './project/project.routes';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/auth',      authRoutes);
 router.use('/api-keys',  apiKeyRoutes);
 router.use('/bookings',  bookingRoutes);
 router.use('/boards',    boardRoutes);
+router.use('/projects',  projectRoutes);
 
 export default router;
