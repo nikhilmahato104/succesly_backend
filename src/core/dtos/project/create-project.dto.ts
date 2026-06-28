@@ -16,6 +16,17 @@ export interface CreatePaymentTermDto {
   note?:         string;
 }
 
+export interface CreateMaintenanceTermDto {
+  term_number:   number;
+  amount:        number;
+  start_date?:   string;
+  end_date?:     string;
+  due_date?:     string;
+  payment_mode?: PaymentMode;
+  status?:       PaymentTermStatus;
+  note?:         string;
+}
+
 export interface CreateProjectDto {
   client_name:                string;
   client_mobile:              string;
@@ -35,13 +46,26 @@ export interface CreateProjectDto {
   is_maintenance_mode?:       boolean;
   maintenance_start_date?:    string;
   maintenance_end_date?:      string;
-  payment_total_amount:       number;
-  payment_terms?:             CreatePaymentTermDto[];
+  payment_total_amount:        number;
+  payment_terms?:              CreatePaymentTermDto[];
+  maintenance_total_amount?:   number;
+  maintenance_terms?:          CreateMaintenanceTermDto[];
 }
 
 const paymentTermSchema = Joi.object<CreatePaymentTermDto>({
   term_number:  Joi.number().integer().min(1).required(),
   amount:       Joi.number().min(0).required(),
+  due_date:     Joi.date().iso().optional(),
+  payment_mode: Joi.string().valid(...Object.values(PaymentMode)).optional(),
+  status:       Joi.string().valid(...Object.values(PaymentTermStatus)).optional(),
+  note:         Joi.string().trim().optional(),
+});
+
+const maintenanceTermSchema = Joi.object<CreateMaintenanceTermDto>({
+  term_number:  Joi.number().integer().min(1).required(),
+  amount:       Joi.number().min(0).required(),
+  start_date:   Joi.date().iso().optional(),
+  end_date:     Joi.date().iso().optional(),
   due_date:     Joi.date().iso().optional(),
   payment_mode: Joi.string().valid(...Object.values(PaymentMode)).optional(),
   status:       Joi.string().valid(...Object.values(PaymentTermStatus)).optional(),
@@ -69,4 +93,6 @@ export const createProjectSchema = Joi.object<CreateProjectDto>({
   maintenance_end_date:       Joi.date().iso().optional(),
   payment_total_amount:       Joi.number().min(0).required(),
   payment_terms:              Joi.array().items(paymentTermSchema).optional(),
+  maintenance_total_amount:   Joi.number().min(0).optional(),
+  maintenance_terms:          Joi.array().items(maintenanceTermSchema).optional(),
 });

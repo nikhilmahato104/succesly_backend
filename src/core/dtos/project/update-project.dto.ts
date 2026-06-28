@@ -18,6 +18,18 @@ export interface UpdatePaymentTermDto {
   note?:         string;
 }
 
+export interface UpdateMaintenanceTermDto {
+  term_number:   number;
+  amount?:       number;
+  start_date?:   string;
+  end_date?:     string;
+  due_date?:     string;
+  paid_date?:    string;
+  payment_mode?: PaymentMode;
+  status?:       PaymentTermStatus;
+  note?:         string;
+}
+
 export interface UpdateProjectDto {
   client_name?:               string;
   client_mobile?:             string;
@@ -37,15 +49,30 @@ export interface UpdateProjectDto {
   is_maintenance_mode?:       boolean;
   maintenance_start_date?:    string;
   maintenance_end_date?:      string;
-  payment_total_amount?:      number;
-  payment_status?:            ProjectPaymentStatus;
-  payment_terms?:             UpdatePaymentTermDto[];
-  is_active?:                 boolean;
+  payment_total_amount?:       number;
+  payment_status?:             ProjectPaymentStatus;
+  payment_terms?:              UpdatePaymentTermDto[];
+  maintenance_total_amount?:   number;
+  maintenance_payment_status?: ProjectPaymentStatus;
+  maintenance_terms?:          UpdateMaintenanceTermDto[];
+  is_active?:                  boolean;
 }
 
 const updatePaymentTermSchema = Joi.object<UpdatePaymentTermDto>({
   term_number:  Joi.number().integer().min(1).required(),
   amount:       Joi.number().min(0).optional(),
+  due_date:     Joi.date().iso().optional(),
+  paid_date:    Joi.date().iso().optional(),
+  payment_mode: Joi.string().valid(...Object.values(PaymentMode)).optional(),
+  status:       Joi.string().valid(...Object.values(PaymentTermStatus)).optional(),
+  note:         Joi.string().trim().optional(),
+});
+
+const updateMaintenanceTermSchema = Joi.object<UpdateMaintenanceTermDto>({
+  term_number:  Joi.number().integer().min(1).required(),
+  amount:       Joi.number().min(0).optional(),
+  start_date:   Joi.date().iso().optional(),
+  end_date:     Joi.date().iso().optional(),
   due_date:     Joi.date().iso().optional(),
   paid_date:    Joi.date().iso().optional(),
   payment_mode: Joi.string().valid(...Object.values(PaymentMode)).optional(),
@@ -75,5 +102,8 @@ export const updateProjectSchema = Joi.object<UpdateProjectDto>({
   payment_total_amount:       Joi.number().min(0).optional(),
   payment_status:             Joi.string().valid(...Object.values(ProjectPaymentStatus)).optional(),
   payment_terms:              Joi.array().items(updatePaymentTermSchema).optional(),
+  maintenance_total_amount:   Joi.number().min(0).optional(),
+  maintenance_payment_status: Joi.string().valid(...Object.values(ProjectPaymentStatus)).optional(),
+  maintenance_terms:          Joi.array().items(updateMaintenanceTermSchema).optional(),
   is_active:                  Joi.boolean().optional(),
 }).min(1);

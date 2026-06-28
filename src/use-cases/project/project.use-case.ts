@@ -6,6 +6,7 @@ import {
   ProjectPaymentStatus,
   PaymentTermStatus,
   IPaymentTerm,
+  IMaintenanceTerm,
 } from '../../core/entities/project.entity';
 import { AppError }                 from '../../utils/app-error.util';
 import { ListQuery, parsePagination, buildPageResult } from '../../utils/pagination.util';
@@ -45,6 +46,43 @@ function recalculatePayment(
   if (paid === 0)              status = ProjectPaymentStatus.PENDING;
   else if (due === 0)          status = ProjectPaymentStatus.PAID;
   else                         status = ProjectPaymentStatus.PARTIAL;
+
+  return { paid, due, status };
+}
+
+/**
+ * Mongoose subdocuments store data internally in _doc and expose fields via
+ * prototype getters. Spreading them directly ({...subdoc}) loses those getters
+ * and produces an object with Mongoose internals but NOT the schema fields.
+ * This helper calls .toObject() (Mongoose's own serialiser) to get a safe
+ * plain-object copy before we spread or sort.
+ */
+function toPlainTerms(raw: unknown): IPaymentTerm[] {
+  return (raw as Array<{ toObject?(): IPaymentTerm } & IPaymentTerm>).map(t =>
+    typeof t.toObject === 'function' ? t.toObject() : (t as IPaymentTerm),
+  );
+}
+
+function toPlainMaintenanceTerms(raw: unknown): IMaintenanceTerm[] {
+  return (raw as Array<{ toObject?(): IMaintenanceTerm } & IMaintenanceTerm>).map(t =>
+    typeof t.toObject === 'function' ? t.toObject() : (t as IMaintenanceTerm),
+  );
+}
+
+function recalculateMaintenancePayment(
+  totalAmount: number,
+  terms: IMaintenanceTerm[],
+): { paid: number; due: number; status: ProjectPaymentStatus } {
+  const paid = terms
+    .filter(t => t.status === PaymentTermStatus.PAID)
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const due = Math.max(0, totalAmount - paid);
+
+  let status: ProjectPaymentStatus;
+  if (paid === 0)     status = ProjectPaymentStatus.PENDING;
+  else if (due === 0) status = ProjectPaymentStatus.PAID;
+  else                status = ProjectPaymentStatus.PARTIAL;
 
   return { paid, due, status };
 }
@@ -120,7 +158,20 @@ export class ProjectUseCase {
       note:         t.note,
     }));
 
+    const maintenanceTerms: IMaintenanceTerm[] = (dto.maintenance_terms ?? []).map(t => ({
+      term_number:  t.term_number,
+      amount:       t.amount,
+      start_date:   t.start_date ? new Date(t.start_date) : undefined,
+      end_date:     t.end_date   ? new Date(t.end_date)   : undefined,
+      due_date:     t.due_date   ? new Date(t.due_date)   : undefined,
+      payment_mode: t.payment_mode,
+      status:       t.status ?? PaymentTermStatus.PENDING,
+      note:         t.note,
+    }));
+
     const { paid, due, status } = recalculatePayment(dto.payment_total_amount, terms);
+    const mainTotal = dto.maintenance_total_amount ?? 0;
+    const { paid: mPaid, due: mDue, status: mStatus } = recalculateMaintenancePayment(mainTotal, maintenanceTerms);
 
     return this.dataServices.projects.create({
       reference_id,
@@ -147,6 +198,11 @@ export class ProjectUseCase {
       payment_due_amount:         due,
       payment_status:             status,
       payment_terms:              terms,
+      maintenance_total_amount:   mainTotal,
+      maintenance_paid_amount:    mPaid,
+      maintenance_due_amount:     mDue,
+      maintenance_payment_status: mStatus,
+      maintenance_terms:          maintenanceTerms,
       created_by:                 createdBy,
       is_active:                  true,
     });
@@ -206,6 +262,40 @@ export class ProjectUseCase {
       update['payment_status'] = dto.payment_status;
     }
 
+    // ── Maintenance terms ────────────────────────────────────────────────────
+    const newMaintTotal = dto.maintenance_total_amount ?? existing.maintenance_total_amount ?? 0;
+    let   mainTerms     = toPlainMaintenanceTerms(existing.maintenance_terms ?? []);
+
+    if (dto.maintenance_terms !== undefined) {
+      mainTerms = dto.maintenance_terms.map(t => {
+        const ex = mainTerms.find(e => e.term_number === t.term_number);
+        return {
+          term_number:  t.term_number,
+          amount:       t.amount        ?? ex?.amount        ?? 0,
+          start_date:   t.start_date    ? new Date(t.start_date) : ex?.start_date,
+          end_date:     t.end_date      ? new Date(t.end_date)   : ex?.end_date,
+          due_date:     t.due_date      ? new Date(t.due_date)   : ex?.due_date,
+          paid_date:    t.paid_date     ? new Date(t.paid_date)  : ex?.paid_date,
+          payment_mode: t.payment_mode  ?? ex?.payment_mode,
+          status:       t.status        ?? ex?.status        ?? PaymentTermStatus.PENDING,
+          note:         t.note          ?? ex?.note,
+        };
+      });
+      update['maintenance_terms'] = mainTerms;
+    }
+
+    if (dto.maintenance_total_amount !== undefined || dto.maintenance_terms !== undefined) {
+      const { paid: mPaid, due: mDue, status: mStatus } = recalculateMaintenancePayment(newMaintTotal, mainTerms);
+      update['maintenance_total_amount']   = newMaintTotal;
+      update['maintenance_paid_amount']    = mPaid;
+      update['maintenance_due_amount']     = mDue;
+      update['maintenance_payment_status'] = mStatus;
+    }
+
+    if (dto.maintenance_payment_status !== undefined) {
+      update['maintenance_payment_status'] = dto.maintenance_payment_status;
+    }
+
     return this.dataServices.projects.update(id, update);
   }
 
@@ -225,7 +315,7 @@ export class ProjectUseCase {
     const project = await this.dataServices.projects.get(projectId);
     if (!project) throw new AppError('Project not found', 404);
 
-    const terms = project.payment_terms as IPaymentTerm[];
+    const terms = toPlainTerms(project.payment_terms);
     const duplicate = terms.find(t => t.term_number === term.term_number);
     if (duplicate) throw new AppError(`Term number ${term.term_number} already exists`, 409);
 
@@ -249,11 +339,87 @@ export class ProjectUseCase {
     });
   }
 
+  async addMaintenanceTerm(projectId: string, term: {
+    term_number:  number;
+    amount:       number;
+    start_date?:  string;
+    end_date?:    string;
+    due_date?:    string;
+    payment_mode?: string;
+    note?:        string;
+  }) {
+    const project = await this.dataServices.projects.get(projectId);
+    if (!project) throw new AppError('Project not found', 404);
+
+    const terms = toPlainMaintenanceTerms(project.maintenance_terms ?? []);
+    if (terms.find(t => t.term_number === term.term_number)) {
+      throw new AppError(`Maintenance term number ${term.term_number} already exists`, 409);
+    }
+
+    const newTerm: IMaintenanceTerm = {
+      term_number:  term.term_number,
+      amount:       term.amount,
+      start_date:   term.start_date ? new Date(term.start_date) : undefined,
+      end_date:     term.end_date   ? new Date(term.end_date)   : undefined,
+      due_date:     term.due_date   ? new Date(term.due_date)   : undefined,
+      payment_mode: term.payment_mode as IMaintenanceTerm['payment_mode'],
+      status:       PaymentTermStatus.PENDING,
+      note:         term.note,
+    };
+
+    const updatedTerms = [...terms, newTerm].sort((a, b) => a.term_number - b.term_number);
+    const total = project.maintenance_total_amount ?? 0;
+    const { paid, due, status } = recalculateMaintenancePayment(total, updatedTerms);
+
+    return this.dataServices.projects.update(projectId, {
+      maintenance_terms:          updatedTerms,
+      maintenance_paid_amount:    paid,
+      maintenance_due_amount:     due,
+      maintenance_payment_status: status,
+    });
+  }
+
+  async markMaintenanceTermPaid(projectId: string, termNumber: number, paidDate?: string, paymentMode?: string) {
+    const project = await this.dataServices.projects.get(projectId);
+    if (!project) throw new AppError('Project not found', 404);
+
+    const plainTerms  = toPlainMaintenanceTerms(project.maintenance_terms ?? []);
+    const targetIndex = plainTerms.findIndex(t => t.term_number === termNumber);
+    if (targetIndex === -1) throw new AppError(`Maintenance term number ${termNumber} not found`, 404);
+
+    const terms: IMaintenanceTerm[] = plainTerms.map(t => {
+      if (t.term_number !== termNumber) return t;
+      return {
+        ...t,
+        status:       PaymentTermStatus.PAID,
+        paid_date:    paidDate ? new Date(paidDate) : new Date(),
+        payment_mode: (paymentMode as IMaintenanceTerm['payment_mode']) ?? t.payment_mode,
+      };
+    });
+
+    const total = project.maintenance_total_amount ?? 0;
+    const { paid, due, status } = recalculateMaintenancePayment(total, terms);
+
+    return this.dataServices.projects.update(projectId, {
+      maintenance_terms:          terms,
+      maintenance_paid_amount:    paid,
+      maintenance_due_amount:     due,
+      maintenance_payment_status: status,
+    });
+  }
+
   async markTermPaid(projectId: string, termNumber: number, paidDate?: string, paymentMode?: string) {
     const project = await this.dataServices.projects.get(projectId);
     if (!project) throw new AppError('Project not found', 404);
 
-    const terms = (project.payment_terms as IPaymentTerm[]).map(t => {
+    // toPlainTerms() converts Mongoose subdocuments → safe plain objects so
+    // spread ({...t}) and strict equality checks work correctly.
+    const plainTerms = toPlainTerms(project.payment_terms);
+
+    const targetIndex = plainTerms.findIndex(t => t.term_number === termNumber);
+    if (targetIndex === -1) throw new AppError(`Term number ${termNumber} not found`, 404);
+
+    const terms: IPaymentTerm[] = plainTerms.map(t => {
       if (t.term_number !== termNumber) return t;
       return {
         ...t,
@@ -262,9 +428,6 @@ export class ProjectUseCase {
         payment_mode: (paymentMode as IPaymentTerm['payment_mode']) ?? t.payment_mode,
       };
     });
-
-    const found = terms.find(t => t.term_number === termNumber);
-    if (!found) throw new AppError(`Term number ${termNumber} not found`, 404);
 
     const { paid, due, status } = recalculatePayment(project.payment_total_amount, terms);
 

@@ -376,6 +376,116 @@ export const projectPaths = {
       },
     },
   },
+
+  // ─────────────────────────────────────────────────────────────
+  //  Maintenance term sub-routes
+  // ─────────────────────────────────────────────────────────────
+  '/projects/{id}/maintenance-terms': {
+    post: {
+      tags: ['Projects — Maintenance Terms'],
+      summary: 'Add a new maintenance billing term to a project',
+      description: [
+        '## Add Maintenance Term',
+        '',
+        'Appends a single new maintenance installment record to the project\'s `maintenance_terms` array.',
+        '',
+        '**Auth required:** JWT Bearer + API key + CSRF token + role permission `project_management:edit`',
+        '',
+        '### Fields',
+        '| Field | Required | Description |',
+        '|-------|----------|-------------|',
+        '| `term_number` | ✅ | Unique number within maintenance_terms |',
+        '| `amount` | ✅ | Billing amount for this maintenance period |',
+        '| `start_date` | ❌ | Start of maintenance coverage for this term |',
+        '| `end_date` | ❌ | End of maintenance coverage for this term |',
+        '| `due_date` | ❌ | Payment due date |',
+        '| `payment_mode` | ❌ | cash / upi / bank_transfer / cheque / online |',
+        '| `note` | ❌ | Free-text note |',
+        '',
+        '### Example — quarterly maintenance billing',
+        '```json',
+        '{',
+        '  "term_number": 1,',
+        '  "amount": 2000,',
+        '  "start_date": "2026-07-01T00:00:00Z",',
+        '  "end_date": "2026-09-30T23:59:59Z",',
+        '  "due_date": "2026-07-05T00:00:00Z",',
+        '  "note": "Q3 maintenance"',
+        '}',
+        '```',
+        '',
+        '> New terms always start with `status: "pending"`. After adding, `maintenance_due_amount` is recalculated automatically.',
+      ].join('\n'),
+      security: jwtAndKey,
+      parameters: [
+        { in: 'path', name: 'id', required: true, schema: { type: 'string', example: '664f1a2b3c4d5e6f7a8b9c0d' }, description: 'MongoDB ObjectId of the project' },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': { schema: { $ref: '#/components/schemas/AddMaintenanceTermDto' } },
+        },
+      },
+      responses: {
+        200: { description: 'Maintenance term added and summary recalculated', content: { 'application/json': { schema: { $ref: '#/components/schemas/ProjectSuccessResponse' } } } },
+        400: { description: 'term_number or amount missing' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden — invalid CSRF token or missing edit permission' },
+        404: { description: 'Project not found' },
+        409: { description: 'Conflict — maintenance term_number already exists in this project' },
+      },
+    },
+  },
+
+  '/projects/{id}/maintenance-terms/{term_number}/pay': {
+    patch: {
+      tags: ['Projects — Maintenance Terms'],
+      summary: 'Mark a maintenance term as paid',
+      description: [
+        '## Mark Maintenance Term as Paid',
+        '',
+        'Marks a single maintenance installment as `paid` and updates `maintenance_paid_amount`, `maintenance_due_amount`, and `maintenance_payment_status`.',
+        '',
+        '**Auth required:** JWT Bearer + API key + CSRF token + role permission `project_management:edit`',
+        '',
+        '### What happens internally',
+        '1. Finds the maintenance term by `term_number`',
+        '2. Sets `status → "paid"`, records `paid_date` (defaults to now) and `payment_mode`',
+        '3. Recalculates the maintenance payment summary:',
+        '   - All terms paid → `maintenance_payment_status = "paid"`',
+        '   - Some terms paid → `maintenance_payment_status = "partial"`',
+        '   - No terms paid → `maintenance_payment_status = "pending"`',
+        '',
+        '### Example',
+        '```json',
+        '{',
+        '  "paid_date": "2026-07-10T09:00:00Z",',
+        '  "payment_mode": "bank_transfer"',
+        '}',
+        '```',
+        '',
+        '> Both fields are optional — `paid_date` defaults to the current server timestamp.',
+      ].join('\n'),
+      security: jwtAndKey,
+      parameters: [
+        { in: 'path', name: 'id',          required: true, schema: { type: 'string',  example: '664f1a2b3c4d5e6f7a8b9c0d' }, description: 'MongoDB ObjectId of the project' },
+        { in: 'path', name: 'term_number', required: true, schema: { type: 'integer', example: 1 },                           description: 'Maintenance term_number to mark as paid' },
+      ],
+      requestBody: {
+        required: false,
+        content: {
+          'application/json': { schema: { $ref: '#/components/schemas/MarkTermPaidDto' } },
+        },
+      },
+      responses: {
+        200: { description: 'Maintenance term marked as paid — summary updated', content: { 'application/json': { schema: { $ref: '#/components/schemas/ProjectSuccessResponse' } } } },
+        400: { description: 'Invalid term_number (not a number)' },
+        401: { description: 'Unauthorized' },
+        403: { description: 'Forbidden — invalid CSRF token or missing edit permission' },
+        404: { description: 'Project not found or maintenance term_number does not exist' },
+      },
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -394,6 +504,22 @@ export const projectSchemas = {
       payment_mode: { type: 'string',  enum: ['cash', 'bank_transfer', 'upi', 'cheque', 'online'], description: 'Mode of payment' },
       status:       { type: 'string',  enum: ['pending', 'paid', 'overdue'], example: 'pending', description: 'Current status of this installment' },
       note:         { type: 'string',  example: 'Advance payment', description: 'Optional note or label for this term' },
+    },
+  },
+
+  MaintenanceTerm: {
+    type: 'object',
+    description: 'A single maintenance billing installment — covers a specific maintenance period',
+    properties: {
+      term_number:  { type: 'integer', example: 1,                          description: 'Term number (must be unique within maintenance_terms)' },
+      amount:       { type: 'number',  example: 2000,                       description: 'Billing amount for this maintenance period' },
+      start_date:   { type: 'string',  format: 'date-time',                 description: 'Start of maintenance coverage for this term' },
+      end_date:     { type: 'string',  format: 'date-time',                 description: 'End of maintenance coverage for this term' },
+      due_date:     { type: 'string',  format: 'date-time',                 description: 'Payment due date for this maintenance term' },
+      paid_date:    { type: 'string',  format: 'date-time',                 description: 'Actual payment received date' },
+      payment_mode: { type: 'string',  enum: ['cash', 'bank_transfer', 'upi', 'cheque', 'online'], description: 'Payment method used' },
+      status:       { type: 'string',  enum: ['pending', 'paid', 'overdue'], example: 'pending', description: 'Payment status for this maintenance term' },
+      note:         { type: 'string',  example: 'Q3 maintenance',           description: 'Optional note for this term (e.g. quarter label)' },
     },
   },
 
@@ -433,8 +559,18 @@ export const projectSchemas = {
       payment_due_amount:   { type: 'number',  example: 15000,   description: 'Remaining amount to be collected (auto-calculated)' },
       payment_terms: {
         type: 'array',
-        description: 'Installment schedule — each term tracks amount, due date, paid date, mode and status',
+        description: 'Project installment schedule — each term tracks amount, due date, paid date, mode and status',
         items: { $ref: '#/components/schemas/PaymentTerm' },
+      },
+
+      maintenance_payment_status:  { type: 'string',  enum: ['pending', 'partial', 'paid', 'overdue'], example: 'pending', description: 'Maintenance billing status — auto-calculated from maintenance_terms' },
+      maintenance_total_amount:    { type: 'number',  example: 8000,  description: 'Total maintenance contract amount' },
+      maintenance_paid_amount:     { type: 'number',  example: 0,     description: 'Sum of paid maintenance installments (auto-calculated)' },
+      maintenance_due_amount:      { type: 'number',  example: 8000,  description: 'Remaining maintenance amount due (auto-calculated)' },
+      maintenance_terms: {
+        type: 'array',
+        description: 'Maintenance billing schedule — each term has a coverage period (start_date → end_date) plus payment tracking',
+        items: { $ref: '#/components/schemas/MaintenanceTerm' },
       },
 
       created_by: { type: 'string', example: '664f1a2b3c4d5e6f7a8b9c0d', description: 'user_id from JWT of the person who created this record' },
@@ -494,6 +630,28 @@ export const projectSchemas = {
           { term_number: 4, amount: 5000, due_date: '2026-10-01T00:00:00Z', note: 'Final delivery' },
         ],
       },
+      maintenance_total_amount: { type: 'number', example: 8000, description: 'Total maintenance contract amount (defaults to 0 if not provided)' },
+      maintenance_terms: {
+        type: 'array',
+        description: 'Optional maintenance billing schedule — each term must have a unique term_number',
+        items: {
+          type: 'object',
+          required: ['term_number', 'amount'],
+          properties: {
+            term_number:  { type: 'integer', example: 1 },
+            amount:       { type: 'number',  example: 2000 },
+            start_date:   { type: 'string',  format: 'date-time', example: '2026-07-01T00:00:00Z', description: 'Maintenance period start for this term' },
+            end_date:     { type: 'string',  format: 'date-time', example: '2026-09-30T23:59:59Z', description: 'Maintenance period end for this term' },
+            due_date:     { type: 'string',  format: 'date-time', example: '2026-07-05T00:00:00Z' },
+            payment_mode: { type: 'string',  enum: ['cash', 'bank_transfer', 'upi', 'cheque', 'online'] },
+            note:         { type: 'string',  example: 'Q3 maintenance' },
+          },
+        },
+        example: [
+          { term_number: 1, amount: 2000, start_date: '2026-07-01T00:00:00Z', end_date: '2026-09-30T23:59:59Z', due_date: '2026-07-05T00:00:00Z', note: 'Q3' },
+          { term_number: 2, amount: 2000, start_date: '2026-10-01T00:00:00Z', end_date: '2026-12-31T23:59:59Z', due_date: '2026-10-05T00:00:00Z', note: 'Q4' },
+        ],
+      },
     },
   },
 
@@ -539,7 +697,43 @@ export const projectSchemas = {
           },
         },
       },
+      maintenance_total_amount:   { type: 'number',  example: 10000, description: 'Update total maintenance contract amount (triggers maintenance recalculation)' },
+      maintenance_payment_status: { type: 'string',  enum: ['pending', 'partial', 'paid', 'overdue'], description: 'Manually override maintenance_payment_status' },
+      maintenance_terms: {
+        type: 'array',
+        description: 'Replace full maintenance_terms array — use term_number to match existing entries',
+        items: {
+          type: 'object',
+          required: ['term_number'],
+          properties: {
+            term_number:  { type: 'integer', example: 1,         description: 'Identifies which maintenance term to update' },
+            amount:       { type: 'number',  example: 2000 },
+            start_date:   { type: 'string',  format: 'date-time' },
+            end_date:     { type: 'string',  format: 'date-time' },
+            due_date:     { type: 'string',  format: 'date-time' },
+            paid_date:    { type: 'string',  format: 'date-time' },
+            payment_mode: { type: 'string',  enum: ['cash', 'bank_transfer', 'upi', 'cheque', 'online'] },
+            status:       { type: 'string',  enum: ['pending', 'paid', 'overdue'] },
+            note:         { type: 'string' },
+          },
+        },
+      },
       is_active: { type: 'boolean', example: false, description: 'Set false to soft-delete / archive the project' },
+    },
+  },
+
+  AddMaintenanceTermDto: {
+    type: 'object',
+    required: ['term_number', 'amount'],
+    description: 'Request body to add a single new maintenance billing term to a project',
+    properties: {
+      term_number:  { type: 'integer', example: 1,                          description: '(required) Must be unique within maintenance_terms' },
+      amount:       { type: 'number',  example: 2000,                       description: '(required) Billing amount for this maintenance period' },
+      start_date:   { type: 'string',  format: 'date-time', example: '2026-07-01T00:00:00Z', description: 'Start of maintenance coverage for this term' },
+      end_date:     { type: 'string',  format: 'date-time', example: '2026-09-30T23:59:59Z', description: 'End of maintenance coverage for this term' },
+      due_date:     { type: 'string',  format: 'date-time', example: '2026-07-05T00:00:00Z', description: 'Payment due date for this term' },
+      payment_mode: { type: 'string',  enum: ['cash', 'bank_transfer', 'upi', 'cheque', 'online'] },
+      note:         { type: 'string',  example: 'Q3 maintenance', description: 'Optional label or note' },
     },
   },
 

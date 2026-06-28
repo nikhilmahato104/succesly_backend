@@ -11,6 +11,8 @@ import {
   deleteProject,
   addPaymentTerm,
   markTermPaid,
+  addMaintenanceTerm,
+  markMaintenanceTermPaid,
 } from '../../controllers/project.controller';
 
 const router = Router();
@@ -83,6 +85,26 @@ router.patch(
   apiKeyMiddleware,
   requirePermission(MODULE_ID, 'edit'),
   markTermPaid,
+);
+
+// POST /projects/:id/maintenance-terms       — add a new maintenance billing term
+router.post(
+  '/:id/maintenance-terms',
+  authMiddleware,
+  csrfMiddleware,
+  apiKeyMiddleware,
+  requirePermission(MODULE_ID, 'edit'),
+  addMaintenanceTerm,
+);
+
+// PATCH /projects/:id/maintenance-terms/:term_number/pay  — mark maintenance term as paid
+router.patch(
+  '/:id/maintenance-terms/:term_number/pay',
+  authMiddleware,
+  csrfMiddleware,
+  apiKeyMiddleware,
+  requirePermission(MODULE_ID, 'edit'),
+  markMaintenanceTermPaid,
 );
 
 export default router;

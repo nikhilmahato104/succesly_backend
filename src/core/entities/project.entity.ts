@@ -73,6 +73,18 @@ export interface IPaymentTerm {
   note?:         string;
 }
 
+export interface IMaintenanceTerm {
+  term_number:   number;
+  amount:        number;
+  start_date?:   Date;
+  end_date?:     Date;
+  due_date?:     Date;
+  paid_date?:    Date;
+  payment_mode?: PaymentMode;
+  status:        PaymentTermStatus;
+  note?:         string;
+}
+
 export interface IProject {
   reference_id:                string;
   client_name:                 string;
@@ -98,6 +110,11 @@ export interface IProject {
   payment_paid_amount:         number;
   payment_due_amount:          number;
   payment_terms:               IPaymentTerm[];
+  maintenance_total_amount:    number;
+  maintenance_paid_amount:     number;
+  maintenance_due_amount:      number;
+  maintenance_payment_status:  ProjectPaymentStatus;
+  maintenance_terms:           IMaintenanceTerm[];
   created_by:                  string;
   is_active:                   boolean;
 }

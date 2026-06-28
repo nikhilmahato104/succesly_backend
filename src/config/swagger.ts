@@ -43,6 +43,7 @@ export const swaggerSpec = {
     { name: 'Boards',    description: 'FigJam-style whiteboard boards — open routes, no auth required' },
     { name: 'Projects',  description: 'Freelancer project management — clients, billing, payment terms, deployment info' },
     { name: 'Projects — Payment Terms', description: 'Add installment terms and mark individual payments as paid' },
+    { name: 'Projects — Maintenance Terms', description: 'Maintenance contract billing — add terms with coverage period and mark as paid' },
     { name: 'Activity Logs', description: 'Audit trail — who did what, when, on which record, with field-level diff and API metrics' },
   ],
   paths: {

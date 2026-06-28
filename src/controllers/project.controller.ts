@@ -227,6 +227,88 @@ export const addPaymentTerm = asyncHandler(async (req: Request, res: Response) =
   });
 });
 
+export const addMaintenanceTerm = asyncHandler(async (req: Request, res: Response) => {
+  const { term_number, amount, start_date, end_date, due_date, payment_mode, note } = req.body as {
+    term_number:   number;
+    amount:        number;
+    start_date?:   string;
+    end_date?:     string;
+    due_date?:     string;
+    payment_mode?: string;
+    note?:         string;
+  };
+
+  if (!term_number || !amount) {
+    return sendError(res, 'term_number and amount are required', 400);
+  }
+
+  const result = await projectUseCase.addMaintenanceTerm(req.params['id']!, {
+    term_number: Number(term_number),
+    amount:      Number(amount),
+    start_date,
+    end_date,
+    due_date,
+    payment_mode,
+    note,
+  });
+  sendSuccess(res, 'Maintenance term added successfully', result);
+
+  const doc = result as unknown as IProject & { reference_id: string; project_name: string };
+  activityLogService.log({
+    user_id:          req.user!.user_id,
+    user_email:       req.user!.email,
+    action:           'add_term',
+    module:           'project',
+    entity_id:        req.params['id'],
+    entity_ref:       `${doc.project_name} (${doc.reference_id})`,
+    description:      activityLogService.describe.custom(
+      `${activityLogService.who(req.user!.email)} added maintenance term #${term_number} (₹${Number(amount).toLocaleString()}) to '${doc.project_name} (${doc.reference_id})'`
+    ),
+    method:           'POST',
+    endpoint:         req.originalUrl,
+    status_code:      200,
+    is_success:       true,
+    response_time_ms: elapsed(req),
+    ip_address:       getIp(req),
+  });
+});
+
+export const markMaintenanceTermPaid = asyncHandler(async (req: Request, res: Response) => {
+  const termNumber = Number(req.params['term_number']);
+  if (isNaN(termNumber)) return sendError(res, 'Invalid term_number', 400);
+
+  const { paid_date, payment_mode } = req.body as { paid_date?: string; payment_mode?: string };
+
+  const result = await projectUseCase.markMaintenanceTermPaid(
+    req.params['id']!,
+    termNumber,
+    paid_date,
+    payment_mode,
+  );
+  sendSuccess(res, 'Maintenance term marked as paid', result);
+
+  const doc  = result as unknown as IProject & { reference_id: string; project_name: string; maintenance_terms: { term_number: number; amount: number }[] };
+  const term = doc.maintenance_terms.find(t => t.term_number === termNumber);
+
+  activityLogService.log({
+    user_id:          req.user!.user_id,
+    user_email:       req.user!.email,
+    action:           'mark_paid',
+    module:           'project',
+    entity_id:        req.params['id'],
+    entity_ref:       `${doc.project_name} (${doc.reference_id})`,
+    description:      activityLogService.describe.custom(
+      `${activityLogService.who(req.user!.email)} marked maintenance term #${termNumber} (₹${(term?.amount ?? 0).toLocaleString()}) as paid on '${doc.project_name} (${doc.reference_id})'${payment_mode ? ` via ${payment_mode}` : ''}`
+    ),
+    method:           'PATCH',
+    endpoint:         req.originalUrl,
+    status_code:      200,
+    is_success:       true,
+    response_time_ms: elapsed(req),
+    ip_address:       getIp(req),
+  });
+});
+
 export const markTermPaid = asyncHandler(async (req: Request, res: Response) => {
   const termNumber = Number(req.params['term_number']);
   if (isNaN(termNumber)) return sendError(res, 'Invalid term_number', 400);

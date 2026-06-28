@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 import {
   IProjectDocument,
+  IMaintenanceTerm,
   ProjectType,
   ProjectStatus,
   ProjectPaymentStatus,
@@ -13,6 +14,21 @@ const paymentTermSchema = new Schema<IProjectDocument['payment_terms'][number]>(
   {
     term_number:  { type: Number, required: true },
     amount:       { type: Number, required: true, min: 0 },
+    due_date:     { type: Date, default: null },
+    paid_date:    { type: Date, default: null },
+    payment_mode: { type: String, enum: Object.values(PaymentMode), default: null },
+    status:       { type: String, enum: Object.values(PaymentTermStatus), default: PaymentTermStatus.PENDING },
+    note:         { type: String, trim: true, default: null },
+  },
+  { _id: false }
+);
+
+const maintenanceTermSchema = new Schema<IMaintenanceTerm>(
+  {
+    term_number:  { type: Number, required: true },
+    amount:       { type: Number, required: true, min: 0 },
+    start_date:   { type: Date, default: null },
+    end_date:     { type: Date, default: null },
     due_date:     { type: Date, default: null },
     paid_date:    { type: Date, default: null },
     payment_mode: { type: String, enum: Object.values(PaymentMode), default: null },
@@ -53,6 +69,11 @@ const projectSchema = new Schema<IProjectDocument>(
     payment_paid_amount:        { type: Number, default: 0, min: 0 },
     payment_due_amount:         { type: Number, default: 0, min: 0 },
     payment_terms:              { type: [paymentTermSchema], default: [] },
+    maintenance_total_amount:   { type: Number, default: 0, min: 0 },
+    maintenance_paid_amount:    { type: Number, default: 0, min: 0 },
+    maintenance_due_amount:     { type: Number, default: 0, min: 0 },
+    maintenance_payment_status: { type: String, enum: Object.values(ProjectPaymentStatus), default: ProjectPaymentStatus.PENDING },
+    maintenance_terms:          { type: [maintenanceTermSchema], default: [] },
     created_by:                 { type: String, required: [true, 'created_by is required'] },
     is_active:                  { type: Boolean, default: true },
   },
