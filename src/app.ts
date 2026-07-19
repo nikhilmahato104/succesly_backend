@@ -32,6 +32,7 @@ const allowedOrigins = [
   'https://api.succesly.in',      // Admin dashboard
   'https://administration.succesly.in', // Admin dashboard alternate domain
   'http://192.168.0.106:5173',
+  'https://mayrarussianspa.com',
 ];
 
 app.use(
