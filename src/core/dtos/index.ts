@@ -7,3 +7,4 @@ export * from './api-key';
 export * from './booking';
 export * from './board';
 export * from './project';
+export * from './device-info';

@@ -10,6 +10,7 @@ import { IBoardDocument }            from '../../core/entities/board.entity';
 import { IBoardHistoryDocument }     from '../../core/entities/board-history.entity';
 import { IProjectDocument }          from '../../core/entities/project.entity';
 import { IActivityLogDocument }      from '../../core/entities/activity-log.entity';
+import { IDeviceInfoDocument }       from '../../core/entities/device-info.entity';
 import { IGenericRepository }        from '../../core/abstracts/generic-repository.abstract';
 import { Student }                   from './model/student.model';
 import { Marks }                     from './model/marks.model';
@@ -22,6 +23,7 @@ import { Board }                     from './model/board.model';
 import { BoardHistory }              from './model/board-history.model';
 import { Project }                   from './model/project.model';
 import { ActivityLog }               from './model/activity-log.model';
+import { DeviceInfo }                from './model/device-info.model';
 import { MongoGenericRepository }    from './mongo-generic-repository';
 
 export class MongoDataServices implements IDataServices {
@@ -36,6 +38,7 @@ export class MongoDataServices implements IDataServices {
   boardHistories: IGenericRepository<IBoardHistoryDocument>;
   projects:       IGenericRepository<IProjectDocument>;
   activityLogs:   IGenericRepository<IActivityLogDocument>;
+  deviceInfos:    IGenericRepository<IDeviceInfoDocument>;
 
   constructor() {
     this.students       = new MongoGenericRepository<IStudentDocument>(Student);
@@ -49,5 +52,6 @@ export class MongoDataServices implements IDataServices {
     this.boardHistories = new MongoGenericRepository<IBoardHistoryDocument>(BoardHistory);
     this.projects       = new MongoGenericRepository<IProjectDocument>(Project);
     this.activityLogs   = new MongoGenericRepository<IActivityLogDocument>(ActivityLog);
+    this.deviceInfos    = new MongoGenericRepository<IDeviceInfoDocument>(DeviceInfo);
   }
 }

@@ -9,6 +9,7 @@ import { bookingPaths, bookingSchemas }  from '../routes/booking/booking.swagger
 import { boardPaths,   boardSchemas }    from '../routes/board/board.swagger';
 import { projectPaths,      projectSchemas }     from '../routes/project/project.swagger';
 import { activityLogPaths, activityLogSchemas }  from '../routes/activity-log/activity-log.swagger';
+import { deviceInfoPaths, deviceInfoSchemas }    from '../routes/device-info/device-info.swagger';
 
 export const swaggerSpec = {
   openapi: '3.0.0',
@@ -45,6 +46,7 @@ export const swaggerSpec = {
     { name: 'Projects — Payment Terms', description: 'Add installment terms and mark individual payments as paid' },
     { name: 'Projects — Maintenance Terms', description: 'Maintenance contract billing — add terms with coverage period and mark as paid' },
     { name: 'Activity Logs', description: 'Audit trail — who did what, when, on which record, with field-level diff and API metrics' },
+    { name: 'Device Info',   description: 'Website visitor device tracking — public tracking endpoint, upsert-by-frontend_generated_uuid, per-URL hit counters' },
   ],
   paths: {
     ...authPaths,
@@ -58,6 +60,7 @@ export const swaggerSpec = {
     ...boardPaths,
     ...projectPaths,
     ...activityLogPaths,
+    ...deviceInfoPaths,
   },
   components: {
     securitySchemes: {
@@ -98,6 +101,7 @@ export const swaggerSpec = {
       ...boardSchemas,
       ...projectSchemas,
       ...activityLogSchemas,
+      ...deviceInfoSchemas,
       ApiError: {
         type: 'object',
         properties: {

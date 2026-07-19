@@ -10,6 +10,7 @@ import { IBoardDocument }          from '../entities/board.entity';
 import { IBoardHistoryDocument }   from '../entities/board-history.entity';
 import { IProjectDocument }        from '../entities/project.entity';
 import { IActivityLogDocument }    from '../entities/activity-log.entity';
+import { IDeviceInfoDocument }     from '../entities/device-info.entity';
 
 export interface IDataServices {
   students: IGenericRepository<IStudentDocument>;
@@ -23,4 +24,5 @@ export interface IDataServices {
   boardHistories: IGenericRepository<IBoardHistoryDocument>;
   projects:       IGenericRepository<IProjectDocument>;
   activityLogs:   IGenericRepository<IActivityLogDocument>;
+  deviceInfos:    IGenericRepository<IDeviceInfoDocument>;
 }

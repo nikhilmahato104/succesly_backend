@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { BookingVia }     from '../core/entities/booking.entity';
 import { apiKeyMiddleware } from './api-key.middleware';
+import { API_KEY_HEADER }   from '../utils/constants';
 
 /**
  * POST /bookings — API key is required ONLY when booking_via = "whatsapp_to_crm"
@@ -32,6 +33,24 @@ export function conditionalBookingPatchApiKey(
   const bodyKeys    = Object.keys(req.body ?? {});
   const needsApiKey = bodyKeys.some(k => !USER_ONLY_FIELDS.has(k));
   if (needsApiKey) {
+    return apiKeyMiddleware(req, res, next);
+  }
+  next();
+}
+
+/**
+ * POST /device-info — the tracking snippet runs in an anonymous visitor's
+ * browser, so it can never carry a JWT. API key stays OPTIONAL here:
+ *   - No key supplied            → anonymous tracking is allowed.
+ *   - Key supplied (x-api-key or api_key in body) → it MUST be valid,
+ *     so a site that chooses to identify itself can't be spoofed with a
+ *     garbage key.
+ */
+export function conditionalDeviceTrackApiKey(
+  req: Request, res: Response, next: NextFunction,
+): Promise<void> | void {
+  const hasKey = !!(req.headers[API_KEY_HEADER] || req.body?.api_key);
+  if (hasKey) {
     return apiKeyMiddleware(req, res, next);
   }
   next();

@@ -10,6 +10,7 @@ import bookingRoutes  from './booking/booking.routes';
 import boardRoutes    from './board/board.routes';
 import projectRoutes      from './project/project.routes';
 import activityLogRoutes  from './activity-log/activity-log.routes';
+import deviceInfoRoutes   from './device-info/device-info.routes';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/bookings',  bookingRoutes);
 router.use('/boards',    boardRoutes);
 router.use('/projects',       projectRoutes);
 router.use('/activity-logs',  activityLogRoutes);
+router.use('/device-info',    deviceInfoRoutes);
 
 export default router;
