@@ -36,7 +36,7 @@ export const errorMiddleware = (
 
   // ── 1. Our own AppError (business logic errors with known status codes) ─
   if (err instanceof AppError) {
-    sendError(res, err.message, err.statusCode);
+    sendError(res, err.message, err.statusCode, err.details ?? null);
     return;
   }
 

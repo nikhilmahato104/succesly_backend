@@ -20,11 +20,14 @@
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
+  /** Optional structured payload returned to the client as `errors` (e.g. slug suggestions) */
+  public readonly details?: unknown;
 
-  constructor(message: string, statusCode: number, isOperational = true) {
+  constructor(message: string, statusCode: number, isOperational = true, details?: unknown) {
     super(message);
     this.statusCode    = statusCode;
     this.isOperational = isOperational;
+    this.details       = details;
 
     // Maintain proper prototype chain for `instanceof` checks
     Object.setPrototypeOf(this, new.target.prototype);

@@ -6,6 +6,8 @@ import { IApiKeyDocument }    from '../entities/api-key.entity';
 import { IProjectDocument }        from '../entities/project.entity';
 import { IActivityLogDocument }    from '../entities/activity-log.entity';
 import { IDeviceInfoDocument }     from '../entities/device-info.entity';
+import { ICampaignDocument }       from '../entities/campaign.entity';
+import { ICampaignClickDocument }  from '../entities/campaign-click.entity';
 
 export interface IDataServices {
   modules:  IGenericRepository<IModuleDocument>;
@@ -15,4 +17,6 @@ export interface IDataServices {
   projects:       IGenericRepository<IProjectDocument>;
   activityLogs:   IGenericRepository<IActivityLogDocument>;
   deviceInfos:    IGenericRepository<IDeviceInfoDocument>;
+  campaigns:      IGenericRepository<ICampaignDocument>;
+  campaignClicks: IGenericRepository<ICampaignClickDocument>;
 }

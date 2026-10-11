@@ -6,6 +6,8 @@ import { IApiKeyDocument }           from '../../core/entities/api-key.entity';
 import { IProjectDocument }          from '../../core/entities/project.entity';
 import { IActivityLogDocument }      from '../../core/entities/activity-log.entity';
 import { IDeviceInfoDocument }       from '../../core/entities/device-info.entity';
+import { ICampaignDocument }         from '../../core/entities/campaign.entity';
+import { ICampaignClickDocument }    from '../../core/entities/campaign-click.entity';
 import { IGenericRepository }        from '../../core/abstracts/generic-repository.abstract';
 import { Module }                    from './model/module.model';
 import { Role }                      from './model/role.model';
@@ -14,6 +16,8 @@ import { ApiKey }                    from './model/api-key.model';
 import { Project }                   from './model/project.model';
 import { ActivityLog }               from './model/activity-log.model';
 import { DeviceInfo }                from './model/device-info.model';
+import { Campaign }                  from './model/campaign.model';
+import { CampaignClick }             from './model/campaign-click.model';
 import { MongoGenericRepository }    from './mongo-generic-repository';
 
 export class MongoDataServices implements IDataServices {
@@ -24,6 +28,8 @@ export class MongoDataServices implements IDataServices {
   projects:       IGenericRepository<IProjectDocument>;
   activityLogs:   IGenericRepository<IActivityLogDocument>;
   deviceInfos:    IGenericRepository<IDeviceInfoDocument>;
+  campaigns:      IGenericRepository<ICampaignDocument>;
+  campaignClicks: IGenericRepository<ICampaignClickDocument>;
 
   constructor() {
     this.modules        = new MongoGenericRepository<IModuleDocument>(Module);
@@ -33,5 +39,7 @@ export class MongoDataServices implements IDataServices {
     this.projects       = new MongoGenericRepository<IProjectDocument>(Project);
     this.activityLogs   = new MongoGenericRepository<IActivityLogDocument>(ActivityLog);
     this.deviceInfos    = new MongoGenericRepository<IDeviceInfoDocument>(DeviceInfo);
+    this.campaigns      = new MongoGenericRepository<ICampaignDocument>(Campaign);
+    this.campaignClicks = new MongoGenericRepository<ICampaignClickDocument>(CampaignClick);
   }
 }

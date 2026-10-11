@@ -7,6 +7,7 @@ import apiKeyRoutes   from './api-key';
 import projectRoutes      from './project/project.routes';
 import activityLogRoutes  from './activity-log/activity-log.routes';
 import deviceInfoRoutes   from './device-info/device-info.routes';
+import campaignRoutes     from './campaign/campaign.routes';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/api-keys',  apiKeyRoutes);
 router.use('/projects',       projectRoutes);
 router.use('/activity-logs',  activityLogRoutes);
 router.use('/device-info',    deviceInfoRoutes);
+router.use('/campaigns',      campaignRoutes);
 
 export default router;

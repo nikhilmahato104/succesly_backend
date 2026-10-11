@@ -8,7 +8,8 @@ import swaggerUi  from 'swagger-ui-express';
 import { swaggerSpec }        from './config/swagger';
 import { swaggerSpec1 }       from './config/swagger1';
 import { docsGate }           from './middlewares/docs-gate.middleware';
-import routes                 from './routes';
+import redirectRoutes, { subdomainRedirect } from './routes/campaign/redirect.routes';
+import routes                from './routes';
 import { errorMiddleware, requestTimerMiddleware } from './middlewares';
 
 const app = express();
@@ -66,13 +67,16 @@ app.use((req, res, next) =>
 // Parse cookies — needed to read the HTTP-only refresh token cookie
 app.use(cookieParser());
 
+// Public short-link redirect (subdomain form) — GET https://<slug>.<SHORT_LINK_DOMAIN>/
+// Runs before everything else so a short-link hit never touches the API stack.
+app.use(subdomainRedirect);
+
 app.use(morgan('dev'));
 app.use(express.json({ limit: '2gb' }));
 app.use(express.urlencoded({ extended: true, limit: '2gb' }));
 
-// Swagger docs — only mounted when SWAGGER_ENABLE=true in .env
+// Swagger UI at /api-docs (password protected) — only mounted when SWAGGER_ENABLE=true in .env
 if (process.env.SWAGGER_ENABLE === 'true') {
-  // Swagger UI — interactive docs at /api-docs
   app.use(docsGate('/api-docs'));
   app.use(
     '/api-docs',
@@ -85,22 +89,27 @@ if (process.env.SWAGGER_ENABLE === 'true') {
       customSiteTitle: 'Zynkly Identity Service',
     })
   );
+}
 
-  // Second, separate Swagger UI at /api-docs1 (password protected)
+// Second, separate Swagger UI at /api-docs1 (campaign / short links, no password)
+// — only mounted when SWAGGER1_ENABLE=true in .env
+if (process.env.SWAGGER1_ENABLE === 'true') {
   app.get('/api-docs-1', (_req, res) => res.redirect('/api-docs1/'));
-  app.use(docsGate('/api-docs1'));
   app.use(
     '/api-docs1',
     swaggerUi.serveFiles(swaggerSpec1),
     swaggerUi.setup(swaggerSpec1, {
       swaggerOptions: { persistAuthorization: true, withCredentials: true },
-      customSiteTitle: 'API Docs 1',
+      customSiteTitle: 'Campaign & Short Link API',
     })
   );
 }
 
 // Versioned API routes
 app.use('/api/v1', routes);
+
+// Public short-link redirect (path form) — GET /r/:slug → 302 to the campaign's final URL
+app.use('/r', redirectRoutes);
 
 // Health check
 app.get('/health', (_req, res) =>
