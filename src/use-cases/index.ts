@@ -1,5 +1,3 @@
-export { StudentUseCase } from './student';
-export { MarksUseCase }   from './marks';
 export { ModuleUseCase }  from './module/module.use-case';
 export { RoleUseCase }    from './role/role.use-case';
 export { UserUseCase }    from './user/user.use-case';

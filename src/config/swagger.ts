@@ -1,12 +1,8 @@
-import { studentPaths, studentSchemas }  from '../routes/student/student.swagger';
-import { marksPaths,   marksSchemas }    from '../routes/marks/marks.swagger';
 import { modulePaths,  moduleSchemas }   from '../routes/module/module.swagger';
 import { rolePaths,    roleSchemas }     from '../routes/role/role.swagger';
 import { userPaths,    userSchemas }     from '../routes/user/user.swagger';
 import { authPaths,    authSchemas }     from '../routes/auth/auth.swagger';
 import { apiKeyPaths,  apiKeySchemas }   from '../routes/api-key/api-key.swagger';
-import { bookingPaths, bookingSchemas }  from '../routes/booking/booking.swagger';
-import { boardPaths,   boardSchemas }    from '../routes/board/board.swagger';
 import { projectPaths,      projectSchemas }     from '../routes/project/project.swagger';
 import { activityLogPaths, activityLogSchemas }  from '../routes/activity-log/activity-log.swagger';
 import { deviceInfoPaths, deviceInfoSchemas }    from '../routes/device-info/device-info.swagger';
@@ -38,10 +34,6 @@ export const swaggerSpec = {
     { name: 'Roles',     description: 'Role management CRUD' },
     { name: 'Modules',   description: 'Module/permission slug management' },
     { name: 'API Keys',  description: 'API key CRUD — keys are shown only on creation' },
-    { name: 'Students',  description: 'Student management' },
-    { name: 'Marks',     description: 'Subject-wise marks with student info via $lookup' },
-    { name: 'Bookings',  description: 'Booking CRUD — auto-generated reference_id, conditional auth per route/field' },
-    { name: 'Boards',    description: 'FigJam-style whiteboard boards — open routes, no auth required' },
     { name: 'Projects',  description: 'Freelancer project management — clients, billing, payment terms, deployment info' },
     { name: 'Projects — Payment Terms', description: 'Add installment terms and mark individual payments as paid' },
     { name: 'Projects — Maintenance Terms', description: 'Maintenance contract billing — add terms with coverage period and mark as paid' },
@@ -54,10 +46,6 @@ export const swaggerSpec = {
     ...rolePaths,
     ...modulePaths,
     ...apiKeyPaths,
-    ...studentPaths,
-    ...marksPaths,
-    ...bookingPaths,
-    ...boardPaths,
     ...projectPaths,
     ...activityLogPaths,
     ...deviceInfoPaths,
@@ -95,10 +83,6 @@ export const swaggerSpec = {
       ...roleSchemas,
       ...moduleSchemas,
       ...apiKeySchemas,
-      ...studentSchemas,
-      ...marksSchemas,
-      ...bookingSchemas,
-      ...boardSchemas,
       ...projectSchemas,
       ...activityLogSchemas,
       ...deviceInfoSchemas,

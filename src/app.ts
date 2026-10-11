@@ -6,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import swaggerUi  from 'swagger-ui-express';
 
 import { swaggerSpec }        from './config/swagger';
+import { swaggerSpec1 }       from './config/swagger1';
+import { docsGate }           from './middlewares/docs-gate.middleware';
 import routes                 from './routes';
 import { errorMiddleware, requestTimerMiddleware } from './middlewares';
 
@@ -35,8 +37,7 @@ const allowedOrigins = [
   'https://mayrarussianspa.com',
 ];
 
-app.use(
-  cors({
+const corsMiddleware = cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (Postman, server-to-server, mobile apps)
       if (!origin) return callback(null, true);
@@ -53,8 +54,14 @@ app.use(
       'Accept',
       'x-csrf-token',   // Required for CSRF protection
     ],
-  })
-);
+  });
+
+// The Swagger docs pages (/api-docs, /api-docs1) are HTML served straight to the
+// browser, not cross-origin API calls, so the origin allow-list is skipped for them
+// (otherwise the docs login form 500s on any host not in the list).
+// Every other route still goes through the allow-list.
+app.use((req, res, next) =>
+  /^\/api-docs1?(\/|$)/.test(req.path) ? next() : corsMiddleware(req, res, next));
 
 // Parse cookies — needed to read the HTTP-only refresh token cookie
 app.use(cookieParser());
@@ -63,18 +70,34 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '2gb' }));
 app.use(express.urlencoded({ extended: true, limit: '2gb' }));
 
-// Swagger UI — interactive docs at /api-docs
-app.use(
-  '/api-docs',
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, {
-    swaggerOptions: {
-      persistAuthorization: true,
-      withCredentials: true,   // sends the rt cookie so /auth/refresh works in Swagger
-    },
-    customSiteTitle: 'Zynkly Identity Service',
-  })
-);
+// Swagger docs — only mounted when SWAGGER_ENABLE=true in .env
+if (process.env.SWAGGER_ENABLE === 'true') {
+  // Swagger UI — interactive docs at /api-docs
+  app.use(docsGate('/api-docs'));
+  app.use(
+    '/api-docs',
+    swaggerUi.serveFiles(swaggerSpec),
+    swaggerUi.setup(swaggerSpec, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        withCredentials: true,   // sends the rt cookie so /auth/refresh works in Swagger
+      },
+      customSiteTitle: 'Zynkly Identity Service',
+    })
+  );
+
+  // Second, separate Swagger UI at /api-docs1 (password protected)
+  app.get('/api-docs-1', (_req, res) => res.redirect('/api-docs1/'));
+  app.use(docsGate('/api-docs1'));
+  app.use(
+    '/api-docs1',
+    swaggerUi.serveFiles(swaggerSpec1),
+    swaggerUi.setup(swaggerSpec1, {
+      swaggerOptions: { persistAuthorization: true, withCredentials: true },
+      customSiteTitle: 'API Docs 1',
+    })
+  );
+}
 
 // Versioned API routes
 app.use('/api/v1', routes);
