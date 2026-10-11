@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Campaign Short Link Flow</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5b6475;
+    --border: #dde1e7;
+    --accent: #5b4bdb;
+    --accent-soft: #ecebfd;
+    --green: #1f9d55;
+    --green-soft: #e6f6ec;
+    --amber: #b7791f;
+    --amber-soft: #fdf3e1;
+    --red: #c53030;
+    --red-soft: #fde8e8;
+    --code-bg: #f1f3f6;
+    --box-fe: #e8f1fd;
+    --box-be: #ecebfd;
+    --box-db: #e6f6ec;
+    --box-ext: #fdf3e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161c;
+      --card: #1c1f27;
+      --text: #e6e8ee;
+      --muted: #9aa3b5;
+      --border: #2e3340;
+      --accent: #9d93ff;
+      --accent-soft: #2a2752;
+      --green: #4fd18b;
+      --green-soft: #183326;
+      --amber: #f0b54d;
+      --amber-soft: #3a2e17;
+      --red: #ff7b7b;
+      --red-soft: #3d1d1d;
+      --code-bg: #252a35;
+      --box-fe: #1d2a3d;
+      --box-be: #2a2752;
+      --box-db: #183326;
+      --box-ext: #3a2e17;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161c; --card: #1c1f27; --text: #e6e8ee; --muted: #9aa3b5; --border: #2e3340;
+    --accent: #9d93ff; --accent-soft: #2a2752; --green: #4fd18b; --green-soft: #183326;
+    --amber: #f0b54d; --amber-soft: #3a2e17; --red: #ff7b7b; --red-soft: #3d1d1d;
+    --code-bg: #252a35; --box-fe: #1d2a3d; --box-be: #2a2752; --box-db: #183326; --box-ext: #3a2e17;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+  header h1 { font-size: 28px; margin: 0 0 4px; }
+  header p { color: var(--muted); margin: 0; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 20px;
+  }
+  h2 { font-size: 20px; margin: 0 0 12px; }
+  h3 { font-size: 16px; margin: 20px 0 8px; }
+  p { margin: 8px 0; }
+  .muted { color: var(--muted); }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 13px;
+    word-break: break-word;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  pre code { background: none; padding: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .pill {
+    display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .ok   { background: var(--green-soft); color: var(--green); }
+  .wait { background: var(--amber-soft); color: var(--amber); }
+  .no   { background: var(--red-soft);   color: var(--red); }
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+  }
+  .callout.warn { border-color: var(--amber); background: var(--amber-soft); }
+  .callout.bad  { border-color: var(--red);   background: var(--red-soft); }
+  .diagram { width: 100%; overflow-x: auto; margin: 12px 0; }
+  .diagram svg { display: block; min-width: 640px; width: 100%; height: auto; }
+  svg text { font-family: 'Segoe UI', system-ui, sans-serif; fill: var(--text); }
+  svg .sub { fill: var(--muted); font-size: 12px; }
+  svg .line { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  svg .accent-line { stroke: var(--accent); stroke-width: 2; fill: none; }
+  svg .green-line { stroke: var(--green); stroke-width: 2; fill: none; }
+  svg .dash { stroke-dasharray: 6 5; }
+  svg .life { stroke: var(--border); stroke-width: 2; stroke-dasharray: 4 4; }
+  ol li, ul li { margin: 4px 0; }
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { counter-increment: s; position: relative; padding-left: 40px; margin: 12px 0; }
+  .steps li::before {
+    content: counter(s); position: absolute; left: 0; top: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  @media (max-width: 600px) {
+    section { padding: 18px 16px; }
+    header h1 { font-size: 23px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Campaign Short Link — Kaise kaam karta hai</h1>
+  <p>Frontend (Netlify) + Backend (Render) + MongoDB — click tracking ka poora flow, simple bhasha mein.</p>
+</header>
+
+<!-- 1 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>1. Ek line mein samjho</h2>
+  <p>
+    Aap ek lamba link (jaise Myntra ka UTM wala link) dete ho → backend uska ek <b>chhota link</b> bana deta hai →
+    jab koi us chhote link ko kholta hai, request pehle <b>aapke backend</b> par aati hai → backend click save karta hai →
+    phir visitor ko asli Myntra link par bhej deta hai (302 redirect).
+  </p>
+  <div class="callout">
+    <b>Golden rule:</b> click sirf tab track hota hai jab request aapke backend se hokar guzre.
+    Isliye hamesha <b>short link</b> share karo, "Redirects to" wala lamba link nahi.
+  </div>
+</section>
+
+<!-- 2 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>2. Aapka setup — kaun kahan hai</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Part</th><th>Domain</th><th>Kahan deployed</th><th>Kaam</th></tr>
+    <tr><td><b>Frontend (Admin UI)</b></td><td><code>succesly.in</code></td><td>Netlify</td><td>Campaign banana, list, analytics dashboard dikhana</td></tr>
+    <tr><td><b>Backend (API + Swagger)</b></td><td><code>api.succesly.in</code></td><td>Render</td><td>Campaign save, short link redirect, click tracking, analytics</td></tr>
+    <tr><td><b>Database</b></td><td>—</td><td>MongoDB Atlas</td><td><code>campaigns</code> aur <code>campaignclicks</code> collections</td></tr>
+    <tr><td><b>Destination</b></td><td><code>myntra.com</code>, <code>flipkart.com</code>...</td><td>Unka server</td><td>Jahan visitor aakhir mein pahunchta hai</td></tr>
+  </table>
+  </div>
+
+  <h3>Architecture diagram</h3>
+  <div class="diagram">
+    <svg viewBox="0 0 900 400" role="img" aria-label="Architecture: Admin uses frontend on Netlify which calls backend on Render which uses MongoDB. Visitor opens short link which goes to backend and is redirected to Myntra.">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+        </marker>
+        <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+        </marker>
+        <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--green)"/>
+        </marker>
+      </defs>
+
+      <!-- Admin row -->
+      <rect x="20" y="40" width="150" height="70" rx="10" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="95" y="70" text-anchor="middle" font-weight="600" font-size="15">Admin (aap)</text>
+      <text x="95" y="92" text-anchor="middle" class="sub">browser</text>
+
+      <rect x="250" y="40" width="190" height="70" rx="10" fill="var(--box-fe)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="345" y="68" text-anchor="middle" font-weight="600" font-size="15">Frontend</text>
+      <text x="345" y="90" text-anchor="middle" class="sub">succesly.in · Netlify</text>
+
+      <rect x="520" y="130" width="200" height="90" rx="10" fill="var(--box-be)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="620" y="164" text-anchor="middle" font-weight="700" font-size="16">Backend</text>
+      <text x="620" y="186" text-anchor="middle" class="sub">api.succesly.in · Render</text>
+      <text x="620" y="205" text-anchor="middle" class="sub">redirect + tracking yahin</text>
+
+      <rect x="770" y="140" width="115" height="70" rx="10" fill="var(--box-db)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="827" y="170" text-anchor="middle" font-weight="600" font-size="15">MongoDB</text>
+      <text x="827" y="192" text-anchor="middle" class="sub">Atlas</text>
+
+      <!-- Admin → FE → BE -->
+      <line x1="170" y1="75" x2="246" y2="75" class="line" marker-end="url(#arr)"/>
+      <path d="M440,75 C500,75 560,90 600,126" class="line" marker-end="url(#arr)"/>
+      <text x="470" y="60" class="sub">/api/v1/campaigns</text>
+      <line x1="720" y1="175" x2="766" y2="175" class="line" marker-end="url(#arr)"/>
+
+      <!-- Visitor row -->
+      <rect x="20" y="290" width="150" height="70" rx="10" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="95" y="320" text-anchor="middle" font-weight="600" font-size="15">Visitor</text>
+      <text x="95" y="342" text-anchor="middle" class="sub">Instagram / WhatsApp</text>
+
+      <path d="M170,315 C330,315 450,260 560,224" class="accent-line" marker-end="url(#arrA)"/>
+      <text x="215" y="300" font-size="13" font-weight="600" fill="var(--accent)" style="fill:var(--accent)">1. short link click</text>
+
+      <rect x="740" y="290" width="145" height="70" rx="10" fill="var(--box-ext)" stroke="var(--border)" stroke-width="1.5"/>
+      <text x="812" y="320" text-anchor="middle" font-weight="600" font-size="15">Myntra</text>
+      <text x="812" y="342" text-anchor="middle" class="sub">final URL + UTM</text>
+
+      <path d="M680,224 C710,260 730,285 752,290" class="green-line" marker-end="url(#arrG)"/>
+      <text x="560" y="275" font-size="13" font-weight="600" style="fill:var(--green)">2. click save → 302</text>
+      <path d="M170,345 C400,390 600,390 736,345" class="green-line dash" marker-end="url(#arrG)"/>
+      <text x="390" y="385" font-size="13" style="fill:var(--green)">3. browser Myntra khol deta hai</text>
+    </svg>
+  </div>
+  <p class="muted">
+    Dhyan do: visitor ka click <b>frontend (Netlify) par nahi</b>, seedha <b>backend (Render)</b> par jaata hai.
+    Frontend sirf aapke (admin ke) kaam ka hai.
+  </p>
+</section>
+
+<!-- 3 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>3. Kaun sa link kis kaam ke liye hit karna hai</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Kaam</th><th>Kaun karta hai</th><th>URL</th></tr>
+    <tr><td>Campaign banana</td><td>Frontend → Backend</td><td><code>POST https://api.succesly.in/api/v1/campaigns</code></td></tr>
+    <tr><td>Short name free hai? (live check)</td><td>Frontend → Backend</td><td><code>GET https://api.succesly.in/api/v1/campaigns/check-slug?slug=abc</code></td></tr>
+    <tr><td>Campaign list</td><td>Frontend → Backend</td><td><code>GET https://api.succesly.in/api/v1/campaigns</code></td></tr>
+    <tr><td>Ek campaign ka analytics</td><td>Frontend → Backend</td><td><code>GET https://api.succesly.in/api/v1/campaigns/{id}/analytics</code></td></tr>
+    <tr><td>Saare campaigns / industry comparison</td><td>Frontend → Backend</td><td><code>GET https://api.succesly.in/api/v1/campaigns/analytics/overview</code></td></tr>
+    <tr><td><b>Share karna (visitor kholta hai)</b></td><td>Visitor → Backend</td><td><b>Short link</b> — neeche section 4 dekho</td></tr>
+    <tr><td>API docs</td><td>Developer</td><td><code>https://api.succesly.in/api-docs1/</code></td></tr>
+  </table>
+  </div>
+  <p class="muted">Campaign wale saare admin APIs ko JWT + <code>x-api-key</code> chahiye, aur create/edit/delete par <code>x-csrf-token</code> bhi.</p>
+</section>
+
+<!-- 4 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>4. Short link ke 3 roop — teeno ek hi backend par jaate hain</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Link</th><th>Kya chahiye</th><th>Status</th></tr>
+    <tr>
+      <td><code>https://api.succesly.in/r/nikhilcampaings</code></td>
+      <td>Kuch nahi — backend deploy hai</td>
+      <td><span class="pill ok">Abhi chal raha hai</span></td>
+    </tr>
+    <tr>
+      <td><code>https://succesly.in/r/nikhilcampaings</code></td>
+      <td>Frontend (Netlify) mein ek redirect rule (section 7)</td>
+      <td><span class="pill wait">Rule lagana hai</span></td>
+    </tr>
+    <tr>
+      <td><code>https://nikhilcampaings.succesly.in</code></td>
+      <td>Netlify DNS mein <code>*</code> CNAME + Render mein <code>*.succesly.in</code> custom domain (section 8)</td>
+      <td><span class="pill wait">DNS setup baaki</span></td>
+    </tr>
+    <tr>
+      <td><code>https://www.myntra.com/...?utm_source=...</code> (Redirects to)</td>
+      <td>—</td>
+      <td><span class="pill no">Track nahi hota</span></td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 900 260" role="img" aria-label="Three short link forms all reach the same backend route; the direct Myntra link bypasses the backend.">
+      <defs>
+        <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+        </marker>
+        <marker id="arr2r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--red)"/>
+        </marker>
+      </defs>
+      <rect x="10" y="15"  width="330" height="40" rx="8" fill="var(--card)" stroke="var(--border)"/>
+      <text x="22" y="40" font-size="13">api.succesly.in/r/nikhilcampaings</text>
+      <rect x="10" y="70"  width="330" height="40" rx="8" fill="var(--card)" stroke="var(--border)"/>
+      <text x="22" y="95" font-size="13">succesly.in/r/… → Netlify rule → api</text>
+      <rect x="10" y="125" width="330" height="40" rx="8" fill="var(--card)" stroke="var(--border)"/>
+      <text x="22" y="150" font-size="13">nikhilcampaings.succesly.in (wildcard DNS)</text>
+
+      <rect x="430" y="60" width="210" height="70" rx="10" fill="var(--box-be)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="535" y="90" text-anchor="middle" font-weight="700" font-size="15">Backend</text>
+      <text x="535" y="112" text-anchor="middle" class="sub">click save karo</text>
+
+      <rect x="720" y="60" width="165" height="70" rx="10" fill="var(--box-ext)" stroke="var(--border)"/>
+      <text x="802" y="100" text-anchor="middle" font-weight="600" font-size="15">Myntra</text>
+
+      <path d="M340,35 C390,35 400,80 426,88"  class="accent-line" marker-end="url(#arr2)"/>
+      <line x1="340" y1="90" x2="426" y2="95" class="accent-line" marker-end="url(#arr2)"/>
+      <path d="M340,145 C390,145 400,110 426,102" class="accent-line" marker-end="url(#arr2)"/>
+      <line x1="640" y1="95" x2="716" y2="95" class="accent-line" marker-end="url(#arr2)"/>
+      <text x="652" y="85" class="sub">302</text>
+
+      <rect x="10" y="200" width="330" height="40" rx="8" fill="var(--red-soft)" stroke="var(--red)"/>
+      <text x="22" y="225" font-size="13">myntra.com/…?utm_source=… (direct)</text>
+      <path d="M340,220 C560,230 760,200 795,134" stroke="var(--red)" stroke-width="2" fill="none" stroke-dasharray="6 5" marker-end="url(#arr2r)"/>
+      <text x="470" y="245" font-size="13" style="fill:var(--red)">backend ko pata hi nahi chalta → track nahi</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 5 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>5. Click hone par andar kya hota hai (step by step)</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 900 430" role="img" aria-label="Sequence: visitor requests short link from backend, backend finds campaign in MongoDB, responds 302 with cookie, browser opens Myntra, backend saves click in background.">
+      <defs>
+        <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+        </marker>
+        <marker id="arr3g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--green)"/>
+        </marker>
+      </defs>
+      <!-- heads -->
+      <rect x="40"  y="10" width="140" height="44" rx="8" fill="var(--card)"   stroke="var(--border)"/>
+      <text x="110" y="38" text-anchor="middle" font-weight="600">Visitor browser</text>
+      <rect x="290" y="10" width="160" height="44" rx="8" fill="var(--box-be)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="370" y="38" text-anchor="middle" font-weight="600">Backend (Render)</text>
+      <rect x="540" y="10" width="140" height="44" rx="8" fill="var(--box-db)" stroke="var(--border)"/>
+      <text x="610" y="38" text-anchor="middle" font-weight="600">MongoDB</text>
+      <rect x="750" y="10" width="130" height="44" rx="8" fill="var(--box-ext)" stroke="var(--border)"/>
+      <text x="815" y="38" text-anchor="middle" font-weight="600">Myntra</text>
+      <!-- lifelines -->
+      <line x1="110" y1="54" x2="110" y2="420" class="life"/>
+      <line x1="370" y1="54" x2="370" y2="420" class="life"/>
+      <line x1="610" y1="54" x2="610" y2="420" class="life"/>
+      <line x1="815" y1="54" x2="815" y2="420" class="life"/>
+
+      <!-- 1 -->
+      <line x1="110" y1="95" x2="366" y2="95" class="line" marker-end="url(#arr3)"/>
+      <text x="120" y="86" font-size="13">① GET /r/nikhilcampaings</text>
+      <!-- 2 -->
+      <line x1="370" y1="140" x2="606" y2="140" class="line" marker-end="url(#arr3)"/>
+      <text x="380" y="131" font-size="13">② slug se campaign dhoondo</text>
+      <!-- 3 -->
+      <line x1="610" y1="180" x2="374" y2="180" class="line dash" marker-end="url(#arr3)"/>
+      <text x="420" y="198" font-size="13">③ final_url + status</text>
+      <!-- 4 -->
+      <line x1="370" y1="235" x2="114" y2="235" class="line" marker-end="url(#arr3)"/>
+      <text x="120" y="226" font-size="13">④ 302 Location: myntra…?utm_…</text>
+      <text x="120" y="254" class="sub">+ cookie _cvid (unique visitor ke liye)</text>
+      <!-- 5 -->
+      <line x1="110" y1="300" x2="811" y2="300" class="line" marker-end="url(#arr3)"/>
+      <text x="470" y="291" font-size="13">⑤ browser Myntra khol deta hai (UTM ke saath)</text>
+      <!-- 6 async -->
+      <line x1="370" y1="355" x2="606" y2="355" class="green-line" marker-end="url(#arr3g)"/>
+      <text x="380" y="346" font-size="13" style="fill:var(--green)">⑥ background mein: click save</text>
+      <text x="380" y="378" class="sub">+ campaign ke total / unique counters badhao</text>
+      <text x="380" y="398" class="sub">(redirect ruka nahi — visitor ko delay nahi hota)</text>
+    </svg>
+  </div>
+
+  <h3>Har click par kya save hota hai</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Data</th><th>Kahan se milta hai</th></tr>
+    <tr><td>Device (mobile / tablet / desktop), browser, OS</td><td>Browser ka <code>User-Agent</code> header. Instagram / Facebook in-app browser bhi pehchanta hai.</td></tr>
+    <tr><td>Referrer (kahan se aaya)</td><td><code>Referer</code> header, jaise <code>l.instagram.com</code>. Na ho to <code>direct</code>.</td></tr>
+    <tr><td>Country / city</td><td>Cloudflare / Vercel / CloudFront ke geo headers, agar server unke peeche ho. Warna <code>unknown</code>.</td></tr>
+    <tr><td>Language</td><td><code>Accept-Language</code> header</td></tr>
+    <tr><td>IP</td><td><code>X-Forwarded-For</code> / socket</td></tr>
+    <tr><td>Unique visitor</td><td><code>_cvid</code> cookie — pehli baar random id set hoti hai, dobara aaya to "unique" nahi gina jaata</td></tr>
+    <tr><td>Campaign info (industry, utm_source, medium, campaign)</td><td>Campaign se copy hoti hai — taaki analytics fast ho</td></tr>
+  </table>
+  </div>
+
+  <h3>Kya count nahi hota</h3>
+  <ul>
+    <li><b>Bots</b> — WhatsApp / Facebook / Slack ka link preview, Google crawler, curl, Postman. Ye save hote hain par <code>bot_clicks</code> mein alag, asli clicks mein nahi.</li>
+    <li><b>Paused / expired / abhi start nahi hua</b> campaign — visitor <code>fallback_url</code> par jaata hai (ya "link inactive" page), click count nahi hota.</li>
+    <li><b>Archived (delete kiya)</b> campaign — 404 page. Naam hamesha reserved rehta hai, koi dusra use nahi le sakta.</li>
+  </ul>
+</section>
+
+<!-- 6 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>6. Campaign banane ka flow (admin side)</h2>
+  <ol class="steps">
+    <li>Frontend form kholta hai → <code>GET /campaigns/industry-types</code> se dropdown bharta hai.</li>
+    <li>Aap short name type karte ho (jaise <code>nikhilcampaings</code>) → frontend har 400ms par <code>GET /campaigns/check-slug?slug=…</code> bhejta hai.
+      Naam liya hua hai to <i>"already taken — please change the short URL name"</i> aur 3 suggestions dikhte hain.</li>
+    <li>Submit → <code>POST /campaigns</code>. Backend UTM params jod kar <code>final_url</code> banata hai aur MongoDB mein save karta hai.</li>
+    <li>Response mein <code>short_url</code> aur <code>short_url_path</code> aate hain → UI copy button + QR code dikhata hai.</li>
+    <li>Aap short link Instagram / WhatsApp par share karte ho → clicks aane lagte hain → analytics page par dikhte hain.</li>
+  </ol>
+</section>
+
+<!-- 7 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>7. <code>succesly.in/r/…</code> chalane ke liye (Netlify rule — DNS change nahi)</h2>
+  <p>Frontend repo mein <code>public/_redirects</code> file ki <b>sabse pehli line</b> (SPA wale <code>/* /index.html 200</code> se upar):</p>
+<pre><code>/r/*  https://api.succesly.in/r/:splat  302</code></pre>
+  <p>Ya <code>netlify.toml</code> mein:</p>
+<pre><code>[[redirects]]
+  from   = "/r/*"
+  to     = "https://api.succesly.in/r/:splat"
+  status = 302
+  force  = true</code></pre>
+  <p>Render env mein <code>SHORT_LINK_PATH_BASE_URL=https://succesly.in</code> rakho taaki UI yahi link dikhaye. Frontend redeploy karo — ho gaya.</p>
+  <div class="callout warn"><code>api.succesly.in</code> ko kuch nahi chhedna — ye rule sirf request ko wahan bhejta hai.</div>
+</section>
+
+<!-- 8 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>8. <code>nikhilcampaings.succesly.in</code> chalane ke liye (wildcard DNS)</h2>
+  <ol class="steps">
+    <li><b>Render</b> → service <code>darkdeep-learning-001</code> → Settings → Custom Domains → <code>*.succesly.in</code> add karo. Render jo DNS records dikhaye (khaas kar <code>_acme-challenge</code>) note karo.</li>
+    <li><b>Netlify</b> → Domains → <code>succesly.in</code> → DNS records → Add:
+      <code>CNAME</code>, name <code>*</code>, value <code>darkdeep-learning-001.onrender.com</code>. Saath mein Render wala <code>_acme-challenge</code> record bhi.</li>
+    <li>Render par Verify → SSL certificate banne do (kuch minute).</li>
+    <li>Check: <code>nslookup test123.succesly.in 8.8.8.8</code> IP dikhaye to ready.</li>
+  </ol>
+  <div class="callout">
+    <code>succesly.in</code>, <code>www</code> aur <code>api</code> ke existing records <b>waise hi rahenge</b> — DNS mein specific record hamesha
+    wildcard se pehle match hota hai. Code mein <code>www</code>, <code>api</code>, <code>administration</code> jaise naam reserved hain.
+  </div>
+</section>
+
+<!-- 9 ─────────────────────────────────────────────────────────── -->
+<section>
+  <h2>9. Render environment variables</h2>
+<pre><code>SHORT_LINK_DOMAIN=succesly.in              # slug.succesly.in banega
+SHORT_LINK_PROTOCOL=https
+SHORT_LINK_PATH_BASE_URL=https://succesly.in   # Netlify rule laga hai to; warna https://api.succesly.in
+ANALYTICS_TIMEZONE=Asia/Kolkata
+SWAGGER1_ENABLE=true                        # /api-docs1 (campaign docs) on/off</code></pre>
+  <p class="muted">Local (<code>.env</code>) ke liye: <code>SHORT_LINK_DOMAIN=localhost:7000</code>, <code>SHORT_LINK_PROTOCOL=http</code>, <code>SHORT_LINK_PATH_BASE_URL=http://localhost:7000</code>.</p>
+</section>
+
+<!-- 10 ────────────────────────────────────────────────────────── -->
+<section>
+  <h2>10. Aksar pooche jaane wale sawaal</h2>
+
+  <h3>Localhost par subdomain kyun chal jaata hai, live par nahi?</h3>
+  <p>Browser <code>*.localhost</code> ko apne aap aapke computer par bhej deta hai — DNS ki zaroorat nahi. Internet par har subdomain ke liye DNS record chahiye, isliye live par section 8 karna padta hai.</p>
+
+  <h3>"Redirects to" wala Myntra link copy karke share karun to track hoga?</h3>
+  <div class="callout bad">Nahi. Wo link seedha Myntra ke server par jaata hai — aapke backend ko pata hi nahi chalta. Sirf short link track hota hai.</div>
+
+  <h3>Kya kisi aur ka domain (jaise abc.com) use kar sakte hain?</h3>
+  <p>Nahi. Domain ka DNS sirf owner badal sakta hai. Apna domain (<code>succesly.in</code>) use karo, ya ek chhota naya domain khareed lo.</p>
+
+  <h3>Backend aur frontend dono deploy karne padte hain?</h3>
+  <p>Tracking ke liye sirf <b>backend</b> zaroori hai. Frontend sirf campaign banane / analytics dekhne ka UI hai — tab tak Swagger (<code>/api-docs1</code>) se bhi kaam ho sakta hai.</p>
+
+  <h3>Same visitor 5 baar click kare to?</h3>
+  <p>Total clicks 5, unique clicks 1 — <code>_cvid</code> cookie se pehchana jaata hai. Cookie delete ki ya dusra browser/phone liya to naya visitor gina jaayega.</p>
+</section>
+
+</div>
+</body>
+</html>

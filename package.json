@@ -5,6 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon",
+    "prod": "tsc && node dist/server.js dotenv_config_path=.env.prod",
     "build": "npm install --include=dev && tsc",
     "start": "node dist/server.js"
   },
