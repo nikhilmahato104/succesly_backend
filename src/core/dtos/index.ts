@@ -5,3 +5,4 @@ export * from './api-key';
 export * from './project';
 export * from './device-info';
 export * from './campaign';
+export * from './site-maintenance';

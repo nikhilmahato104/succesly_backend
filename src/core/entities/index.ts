@@ -6,3 +6,4 @@ export { IProject, IProjectDocument, IPaymentTerm, ProjectType, ProjectStatus, P
 export { IActivityLog, IActivityLogDocument, IFieldChange, ActivityAction, HttpMethod } from './activity-log.entity';
 export { ICampaign, ICampaignDocument, IUtmParams, ICustomParam, IndustryType, CampaignStatus } from './campaign.entity';
 export { ICampaignClick, ICampaignClickDocument, DeviceType, ClickAccessType } from './campaign-click.entity';
+export { ISiteMaintenance, ISiteMaintenanceDocument, DEFAULT_MAINTENANCE_MESSAGE } from './site-maintenance.entity';

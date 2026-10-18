@@ -1,5 +1,6 @@
 import { authPaths, authSchemas }         from '../routes/auth/auth.swagger';
 import { campaignPaths, campaignSchemas } from '../routes/campaign/campaign.swagger';
+import { siteMaintenancePaths, siteMaintenanceSchemas } from '../routes/site-maintenance/site-maintenance.swagger';
 
 // Second Swagger document served at /api-docs1 — campaigns, short links and click analytics.
 const frontendGuide = [
@@ -86,6 +87,38 @@ const frontendGuide = [
   '- To test a link, open it in a real browser tab — Swagger "Try it out" cannot follow a redirect to another site.',
   '',
   '---',
+  '## Site maintenance switch',
+  '',
+  'A second, independent feature on this page: a kill-switch per website.',
+  'Register each site once, then flip `is_maintenance_mode` whenever you deploy —',
+  'the site asks the API on load whether it should show a maintenance page.',
+  '',
+  '```',
+  'PATCH /site-maintenance/{id}  { "is_maintenance_mode": true }   ← you, from the dashboard',
+  '        ⬇',
+  'GET /site-maintenance/status?url=https://abc.com/               ← the site, on every load',
+  '        ⬇',
+  '{ "data": { "is_maintenance_mode": true, "maintenance_message": "Back by 6 PM IST." } }',
+  '```',
+  '',
+  '- **`GET /site-maintenance/status` is public** — no JWT, no API key, no CSRF. It runs in the',
+  '  the visitor browser. Everything else needs the same auth as `/campaigns`.',
+  '- **The url is normalised before matching**, so `abc.com`, `https://abc.com` and',
+  '  `https://abc.com/` all find the same record, and a record for `abc.com` also covers',
+  '  `abc.com/shop/item/1`. Just send `window.location.href`.',
+  '- **An unknown url answers 200 with `is_maintenance_mode: false`** — the check fails open,',
+  '  so a typo can never take a working site down.',
+  '- Branch on `data.is_maintenance_mode` only; use `data.maintenance_message` as the page text.',
+  '',
+  '```js',
+  "const { data } = await axios.get('/site-maintenance/status', { params: { url: window.location.href } });",
+  'if (data.data.is_maintenance_mode) renderMaintenancePage(data.data.maintenance_message);',
+  'else renderApp();',
+  '```',
+  '',
+  '> The browser origin calling this must be in the CORS allow-list in `src/app.ts`.',
+  '',
+  '---',
   '## Short-link domain setup (backend / DevOps)',
   '| Env | Dev | Prod |',
   '|---|---|---|',
@@ -114,10 +147,12 @@ export const swaggerSpec1 = {
     { name: 'Campaigns',           description: 'Create / list / edit / archive campaigns and their short links' },
     { name: 'Campaign Analytics',  description: 'Click analytics per campaign and across industries / UTM channels' },
     { name: 'Short Link Redirect', description: 'Public redirect endpoint — what visitors hit' },
+    { name: 'Site Maintenance',    description: 'Per-site maintenance switch — register a site, flip maintenance mode on/off, and let the site ask by its own url whether it should show a maintenance page' },
   ],
   paths: {
     ...authPaths,
     ...campaignPaths,
+    ...siteMaintenancePaths,
   },
   components: {
     securitySchemes: {
@@ -143,6 +178,7 @@ export const swaggerSpec1 = {
     schemas: {
       ...authSchemas,
       ...campaignSchemas,
+      ...siteMaintenanceSchemas,
       ApiError: {
         type: 'object',
         properties: {

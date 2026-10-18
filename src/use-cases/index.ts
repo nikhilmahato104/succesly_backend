@@ -5,3 +5,4 @@ export { AuthUseCase }    from './auth/auth.use-case';
 export { ApiKeyUseCase }  from './api-key/api-key.use-case';
 export { ProjectUseCase }      from './project/project.use-case';
 export { ActivityLogUseCase }  from './activity-log/activity-log.use-case';
+export { SiteMaintenanceUseCase } from './site-maintenance/site-maintenance.use-case';

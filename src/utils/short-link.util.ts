@@ -20,7 +20,7 @@ export const RESERVED_SLUGS = new Set([
   'ftp', 'cdn', 'static', 'assets', 'img', 'images', 'media', 'files', 'docs', 'api-docs', 'api-docs1',
   'help', 'support', 'status', 'blog', 'shop', 'store', 'auth', 'login', 'logout', 'signup', 'register',
   'account', 'billing', 'dev', 'staging', 'test', 'beta', 'demo', 'ns1', 'ns2', 'mx', 'vpn', 'root',
-  'health', 'r',
+  'health', 'r', 'crm', '_acme-challenge', '_cf-custom-hostname',
 ]);
 
 // No 0/o/1/l — random slugs are often read aloud or typed from a poster

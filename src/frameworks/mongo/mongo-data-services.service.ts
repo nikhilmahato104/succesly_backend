@@ -8,6 +8,7 @@ import { IActivityLogDocument }      from '../../core/entities/activity-log.enti
 import { IDeviceInfoDocument }       from '../../core/entities/device-info.entity';
 import { ICampaignDocument }         from '../../core/entities/campaign.entity';
 import { ICampaignClickDocument }    from '../../core/entities/campaign-click.entity';
+import { ISiteMaintenanceDocument }  from '../../core/entities/site-maintenance.entity';
 import { IGenericRepository }        from '../../core/abstracts/generic-repository.abstract';
 import { Module }                    from './model/module.model';
 import { Role }                      from './model/role.model';
@@ -18,6 +19,7 @@ import { ActivityLog }               from './model/activity-log.model';
 import { DeviceInfo }                from './model/device-info.model';
 import { Campaign }                  from './model/campaign.model';
 import { CampaignClick }             from './model/campaign-click.model';
+import { SiteMaintenance }           from './model/site-maintenance.model';
 import { MongoGenericRepository }    from './mongo-generic-repository';
 
 export class MongoDataServices implements IDataServices {
@@ -30,6 +32,7 @@ export class MongoDataServices implements IDataServices {
   deviceInfos:    IGenericRepository<IDeviceInfoDocument>;
   campaigns:      IGenericRepository<ICampaignDocument>;
   campaignClicks: IGenericRepository<ICampaignClickDocument>;
+  siteMaintenances: IGenericRepository<ISiteMaintenanceDocument>;
 
   constructor() {
     this.modules        = new MongoGenericRepository<IModuleDocument>(Module);
@@ -41,5 +44,6 @@ export class MongoDataServices implements IDataServices {
     this.deviceInfos    = new MongoGenericRepository<IDeviceInfoDocument>(DeviceInfo);
     this.campaigns      = new MongoGenericRepository<ICampaignDocument>(Campaign);
     this.campaignClicks = new MongoGenericRepository<ICampaignClickDocument>(CampaignClick);
+    this.siteMaintenances = new MongoGenericRepository<ISiteMaintenanceDocument>(SiteMaintenance);
   }
 }

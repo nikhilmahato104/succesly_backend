@@ -8,6 +8,7 @@ import { IActivityLogDocument }    from '../entities/activity-log.entity';
 import { IDeviceInfoDocument }     from '../entities/device-info.entity';
 import { ICampaignDocument }       from '../entities/campaign.entity';
 import { ICampaignClickDocument }  from '../entities/campaign-click.entity';
+import { ISiteMaintenanceDocument } from '../entities/site-maintenance.entity';
 
 export interface IDataServices {
   modules:  IGenericRepository<IModuleDocument>;
@@ -19,4 +20,5 @@ export interface IDataServices {
   deviceInfos:    IGenericRepository<IDeviceInfoDocument>;
   campaigns:      IGenericRepository<ICampaignDocument>;
   campaignClicks: IGenericRepository<ICampaignClickDocument>;
+  siteMaintenances: IGenericRepository<ISiteMaintenanceDocument>;
 }

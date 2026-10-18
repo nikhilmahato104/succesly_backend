@@ -8,6 +8,7 @@ import projectRoutes      from './project/project.routes';
 import activityLogRoutes  from './activity-log/activity-log.routes';
 import deviceInfoRoutes   from './device-info/device-info.routes';
 import campaignRoutes     from './campaign/campaign.routes';
+import siteMaintenanceRoutes from './site-maintenance/site-maintenance.routes';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/projects',       projectRoutes);
 router.use('/activity-logs',  activityLogRoutes);
 router.use('/device-info',    deviceInfoRoutes);
 router.use('/campaigns',      campaignRoutes);
+router.use('/site-maintenance', siteMaintenanceRoutes);
 
 export default router;
